@@ -74,6 +74,7 @@ void init(void) {
     err = player_init();
     handle_error(err, "failed to init player", 1);
 
+    ascii_map(' ', 1, 90);
     ascii_map('A', 16, 64);
     ascii_map('a', 16, 64);
     ascii_map('Q', 10, 80);

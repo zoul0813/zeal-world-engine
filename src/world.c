@@ -12,47 +12,65 @@ Vector2_u8 world_position;
  * It is assumed the viewport is always the screen 0,1 on the tilemap
  */
 
-void screen_slide(const Edge edge) {
+void screen_slide(Point tilemap, const Edge world_edge, const Edge player_edge) {
     uint8_t frames = 0;
-    Direction direction = {
+
+    Direction world_direction = {
         .x = 0,
         .y = 0,
     };
-    Point tilemap = {
-        .x = 320,
+
+    Direction player_direction = {
+        .x = 0,
         .y = 0,
     };
 
-    Point pos = {
+    Point player_pos = {
         .x = player.point.x,
         .y = player.point.y,
     };
 
-    // determine direction/timing
-    switch(edge) {
+    // determine direction/timing of screen
+    switch(world_edge) {
         case EdgeLeft:
-            direction.x = DIRECTION_LEFT * SLIDE_SPEED;
+            world_direction.x = DIRECTION_LEFT * SLIDE_SPEED;
             frames = SCREEN_WIDTH / SLIDE_SPEED;
             break;
         case EdgeRight:
-            direction.x = DIRECTION_RIGHT * SLIDE_SPEED;
+            world_direction.x = DIRECTION_RIGHT * SLIDE_SPEED;
             frames = SCREEN_WIDTH / SLIDE_SPEED;
             break;
         case EdgeTop:
-            direction.y = DIRECTION_UP * SLIDE_SPEED;
+            world_direction.y = DIRECTION_UP * SLIDE_SPEED;
             frames = SCREEN_HEIGHT / SLIDE_SPEED; // this will cause v-slides to be faster than h-slides :think:
             break;
         case EdgeBottom:
-            direction.y = DIRECTION_DOWN * SLIDE_SPEED;
+            world_direction.y = DIRECTION_DOWN * SLIDE_SPEED;
             frames = SCREEN_HEIGHT / SLIDE_SPEED; // this will cause v-slides to be faster than h-slides :think:
+            break;
+    }
+
+    // determine direction of player
+    switch(player_edge) {
+        case EdgeLeft:
+            player_direction.x = DIRECTION_LEFT * SLIDE_SPEED;
+            break;
+        case EdgeRight:
+            player_direction.x = DIRECTION_RIGHT * SLIDE_SPEED;
+            break;
+        case EdgeTop:
+            player_direction.y = DIRECTION_UP * SLIDE_SPEED;
+            break;
+        case EdgeBottom:
+            player_direction.y = DIRECTION_DOWN * SLIDE_SPEED;
             break;
     }
 
     // slide the player the few extra pixels
     for(uint8_t x = SPRITE_WIDTH/SLIDE_SPEED; x > 0; x--) {
-        pos.x += direction.x;
-        pos.y += direction.y;
-        player_set_xy(pos.x, pos.y);
+        player_pos.x += player_direction.x;
+        player_pos.y += player_direction.y;
+        player_set_xy(player_pos.x, player_pos.y);
 
         gfx_wait_vblank(&vctx);
         sprites_render(&vctx);
@@ -61,12 +79,12 @@ void screen_slide(const Edge edge) {
 
     // slide the player/room into view
     for(uint8_t x = frames; x > 0; x--) {
-        tilemap.x += direction.x;
-        tilemap.y += direction.y;
+        tilemap.x += world_direction.x;
+        tilemap.y += world_direction.y;
 
-        pos.x += -direction.x;
-        pos.y += -direction.y;
-        player_set_xy(pos.x, pos.y);
+        player_pos.x += -player_direction.x;
+        player_pos.y += -player_direction.y;
+        player_set_xy(player_pos.x, player_pos.y);
 
         gfx_wait_vblank(&vctx);
 
@@ -77,7 +95,7 @@ void screen_slide(const Edge edge) {
     }
 
     // make sure the player is positioned properly
-    switch (edge) {
+    switch (player_edge) {
         case EdgeLeft:
             player_set_xy(SCREEN_WIDTH, player.point.y);
             break;
@@ -94,10 +112,18 @@ void screen_slide(const Edge edge) {
 }
 
 
-void screen_load(Vector2_u8 world, const Edge edge) {
+void screen_load(Vector2_u8 world, Edge edge) {
     Vector2_u8 old_world = {
         .x = world_position.x,
         .y = world_position.y,
+    };
+
+    Edge world_edge = edge;
+    Edge player_edge = edge;
+
+    Point tilemap = {
+        .x = SCREEN_WIDTH,
+        .y = 0,
     };
 
     switch(edge) {
@@ -109,7 +135,7 @@ void screen_load(Vector2_u8 world, const Edge edge) {
             break;
         case EdgeTop:
             // load the old map beneath
-            load_tilemap(&vctx, world.x, world.y, 1, 1);
+            load_tilemap(&vctx, old_world.x, old_world.y, 1, 1);
             // jump to old map
             gfx_wait_vblank(&vctx);
             tilemap_scroll(0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -117,13 +143,15 @@ void screen_load(Vector2_u8 world, const Edge edge) {
 
             // load the new map above
             load_tilemap(&vctx, world.x, world.y, 1, 0);
+
+            tilemap.y = SCREEN_HEIGHT;
             break;
         case EdgeBottom:
             load_tilemap(&vctx, world.x, world.y, 1, 1);
             break;
     }
 
-    screen_slide(edge);
+    screen_slide(tilemap, world_edge, player_edge);
 
     // load the current screen into 1,0 and jump to it
     load_tilemap(&vctx, world.x, world.y, 1, 0);
