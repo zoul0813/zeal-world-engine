@@ -7,6 +7,9 @@
 #define WORLD_HEIGHT  4
 #define SCREEN_TILES  (20 * 15)
 
-uint8_t world_transition(Edge edge);
+extern Vector2_u8 world_position;
+
+void screen_load(Vector2_u8 world, const Edge edge);
+uint8_t screen_transition(Edge edge);
 
 #endif

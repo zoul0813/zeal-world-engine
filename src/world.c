@@ -4,76 +4,198 @@
 #include "main.h"
 #include "player.h"
 
-Vector2_u8 world_position;
-// uint8_t world_x = 0, world_y = 0, edge = EdgeNone;
+#define SLIDE_SPEED 4
 
-uint8_t world_transition(Edge edge) {
-    uint8_t transition = 0;
+Vector2_u8 world_position;
+
+/**
+ * It is assumed the viewport is always the screen 0,1 on the tilemap
+ */
+
+void screen_slide(const Edge edge) {
+    uint8_t frames = 0;
+    Direction direction = {
+        .x = 0,
+        .y = 0,
+    };
+    Point tilemap = {
+        .x = 320,
+        .y = 0,
+    };
+
+    Point pos = {
+        .x = player.point.x,
+        .y = player.point.y,
+    };
+
+    // determine direction/timing
+    switch(edge) {
+        case EdgeLeft:
+            direction.x = DIRECTION_LEFT * SLIDE_SPEED;
+            frames = SCREEN_WIDTH / SLIDE_SPEED;
+            break;
+        case EdgeRight:
+            direction.x = DIRECTION_RIGHT * SLIDE_SPEED;
+            frames = SCREEN_WIDTH / SLIDE_SPEED;
+            break;
+        case EdgeTop:
+            direction.y = DIRECTION_UP * SLIDE_SPEED;
+            frames = SCREEN_HEIGHT / SLIDE_SPEED; // this will cause v-slides to be faster than h-slides :think:
+            break;
+        case EdgeBottom:
+            direction.y = DIRECTION_DOWN * SLIDE_SPEED;
+            frames = SCREEN_HEIGHT / SLIDE_SPEED; // this will cause v-slides to be faster than h-slides :think:
+            break;
+    }
+
+    // slide the player the few extra pixels
+    for(uint8_t x = SPRITE_WIDTH/SLIDE_SPEED; x > 0; x--) {
+        pos.x += direction.x;
+        pos.y += direction.y;
+        player_set_xy(pos.x, pos.y);
+
+        gfx_wait_vblank(&vctx);
+        sprites_render(&vctx);
+        gfx_wait_end_vblank(&vctx);
+    }
+
+    // slide the player/room into view
+    for(uint8_t x = frames; x > 0; x--) {
+        tilemap.x += direction.x;
+        tilemap.y += direction.y;
+
+        pos.x += -direction.x;
+        pos.y += -direction.y;
+        player_set_xy(pos.x, pos.y);
+
+        gfx_wait_vblank(&vctx);
+
+        tilemap_scroll(0, tilemap.x, tilemap.y);
+        sprites_render(&vctx);
+
+        gfx_wait_end_vblank(&vctx);
+    }
+
+    // make sure the player is positioned properly
     switch (edge) {
         case EdgeLeft:
-            if (world_position.x > 0) {
-                world_position.x--;
-                player_set_xy(SCREEN_WIDTH, player.point.y);
+            player_set_xy(SCREEN_WIDTH, player.point.y);
+            break;
+        case EdgeRight:
+            player_set_xy(SPRITE_WIDTH, player.point.y);
+            break;
+        case EdgeTop:
+            player_set_xy(player.point.x, SCREEN_HEIGHT);
+            break;
+        case EdgeBottom:
+            player_set_xy(player.point.x, SPRITE_HEIGHT);
+            break;
+    }
+}
+
+
+void screen_load(Vector2_u8 world, const Edge edge) {
+    Vector2_u8 old_world = {
+        .x = world_position.x,
+        .y = world_position.y,
+    };
+
+    switch(edge) {
+        case EdgeLeft:
+            load_tilemap(&vctx, world.x, world.y, 0, 0);
+            break;
+        case EdgeRight:
+            load_tilemap(&vctx, world.x, world.y, 2, 0);
+            break;
+        case EdgeTop:
+            // load the old map beneath
+            load_tilemap(&vctx, world.x, world.y, 1, 1);
+            // jump to old map
+            gfx_wait_vblank(&vctx);
+            tilemap_scroll(0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            gfx_wait_end_vblank(&vctx);
+
+            // load the new map above
+            load_tilemap(&vctx, world.x, world.y, 1, 0);
+            break;
+        case EdgeBottom:
+            load_tilemap(&vctx, world.x, world.y, 1, 1);
+            break;
+    }
+
+    screen_slide(edge);
+
+    // load the current screen into 1,0 and jump to it
+    load_tilemap(&vctx, world.x, world.y, 1, 0);
+    gfx_wait_vblank(&vctx);
+    tilemap_scroll(0, SCREEN_WIDTH, 0);
+    gfx_wait_end_vblank(&vctx);
+
+    // update to the latest
+    world_position.x = world.x;
+    world_position.y = world.y;
+}
+
+/**
+ * Transition to the next screen
+ *
+ * This will momentarily "pause" the game and transition
+ * the mext screen into view, if applicable.
+ *
+ * @param edge The edge of the current screen the player is exiting from
+ * @returns 1 if transition occurred, 0 is no transition occurred
+ */
+uint8_t screen_transition(const Edge edge) {
+    uint8_t transition = 0;
+
+    Vector2_u8 new_world = {
+        .x = world_position.x,
+        .y = world_position.y,
+    };
+
+    switch (edge) {
+        case EdgeLeft:
+            if (new_world.x > 0) {
+                new_world.x--;
                 transition=1;
             } else {
+                // don't let the player go off screen
                 player_set_xy(SPRITE_WIDTH, player.point.y);
             }
             break;
         case EdgeRight:
-            if (world_position.x < (WORLD_WIDTH - 1)) {
-                world_position.x++;
-                player_set_xy(SPRITE_WIDTH, player.point.y);
+            if (new_world.x < (WORLD_WIDTH - 1)) {
+                new_world.x++;
                 transition=1;
             } else {
+                // don't let the player go off screen
                 player_set_xy(SCREEN_WIDTH, player.point.y);
             }
             break;
         case EdgeTop:
-            if (world_position.y > 0) {
-                world_position.y--;
-                player_set_xy(player.point.x, SCREEN_HEIGHT);
+            if (new_world.y > 0) {
+                new_world.y--;
                 transition=1;
             } else {
+                // don't let the player go off screen
                 player_set_xy(player.point.x, SPRITE_HEIGHT);
             }
             break;
         case EdgeBottom:
-            if (world_position.y < (WORLD_HEIGHT - 1)) {
-                world_position.y++;
-                player_set_xy(player.point.x, SPRITE_HEIGHT);
+            if (new_world.y < (WORLD_HEIGHT - 1)) {
+                new_world.y++;
                 transition=1;
             } else {
+                // don't let the player go off screen
                 player_set_xy(player.point.x, SCREEN_HEIGHT);
             }
             break;
     }
+
     if(transition) {
-        Point pos = {
-            .x = player.point.x,
-            .y = player.point.y,
-        };
-
-        // hide the player
-        player_set_xy(0, 0);
-        gfx_wait_vblank(&vctx);
-        sprites_render(&vctx);
-        gfx_wait_end_vblank(&vctx);
-        msleep(250); // brief delay
-
-        // render the new screen
-        gfx_wait_vblank(&vctx);
-        load_tilemap(&vctx, world_position.x, world_position.y, 0, 0);
-        gfx_wait_end_vblank(&vctx);
-        msleep(250); // brief delay
-
-        // show the player
-        player_set_xy(pos.x, pos.y);
-        gfx_wait_vblank(&vctx);
-        sprites_render(&vctx);
-        gfx_wait_end_vblank(&vctx);
-        msleep(250); // brief delay
-
+        screen_load(new_world, edge);
         return 1;
     }
+
     return 0;
 }

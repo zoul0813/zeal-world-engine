@@ -12,6 +12,7 @@
 #include "player.h"
 
 gfx_context vctx;
+char buffer[20] = "\0";
 
 // uint8_t world_x = 0, world_y = 0, world_edge = EdgeNone;
 
@@ -21,18 +22,9 @@ int main(void) {
     init();
 reset:
     reset();
-    clear_tilemap(0, 0, 80, 40, 0);  // clear all layer0 memory
-    clear_tilemap(0, 0, 80, 40, 1);  // clear all layer1 memory
 
-    load_tilemap(&vctx, 0, 0, 0, 0);
-    // load_tilemap(&vctx, 1, 0, 1, 0);
-    // load_tilemap(&vctx, 2, 0, 2, 0);
-    // load_tilemap(&vctx, 3, 0, 3, 0);
-
-    // load_tilemap(&vctx, 0, 1, 0, 1);
-    // load_tilemap(&vctx, 1, 1, 1, 1);
-    // load_tilemap(&vctx, 2, 1, 2, 1);
-    // load_tilemap(&vctx, 3, 1, 3, 1);
+    load_tilemap(&vctx, 0, 0, 1, 0);
+    tilemap_scroll_x(0, SCREEN_WIDTH);
 
     while (true) {
         uint8_t action = input();
@@ -62,6 +54,9 @@ void init(void) {
     // disable the screen to prevent artifacts from showing
     gfx_enable_screen(0);
 
+    clear_tilemap(0, 0, 80, 40, 0);  // clear all layer0 memory
+    clear_tilemap(0, 0, 80, 40, 1);  // clear all layer1 memory
+
     sprites_register_arena(SPRITE_ARENA, MAX_SPRITES);
 
     err = gfx_initialize(ZVB_CTRL_VID_MODE_GFX_320_8BIT, &vctx);
@@ -79,10 +74,23 @@ void init(void) {
     err = player_init();
     handle_error(err, "failed to init player", 1);
 
+    ascii_map('A', 16, 64);
+    ascii_map('a', 16, 64);
+    ascii_map('Q', 10, 80);
+    ascii_map('q', 10, 80);
+    ascii_map('0', 10, 96);
+
+    sprintf(buffer, "%03d %03d", world_position.x, world_position.y);
+    nprint_string(&vctx, buffer, 7, 0, 0);
+
     gfx_enable_screen(1);
 }
 
 void deinit(void) {
+    // reset the tilemap scroll
+    tilemap_scroll(0, 0, 0);
+    tilemap_scroll(1, 0, 0);
+
     // reset screen
     ioctl(DEV_STDOUT, CMD_RESET_SCREEN, NULL);
 
@@ -130,9 +138,11 @@ void clear_tilemap(uint8_t x, uint8_t y, uint16_t width, uint16_t height, uint8_
 }
 
 void update(void) {
-    Edge world_edge = player_move();
-    if(world_edge != EdgeNone) {
-        world_transition(world_edge);
+    Edge screen_edge = player_move();
+    if(screen_edge != EdgeNone) {
+        screen_transition(screen_edge);
+        sprintf(buffer, "%03d %03d", world_position.x, world_position.y);
+        nprint_string(&vctx, buffer, 7, 0, 0);
     }
 }
 
