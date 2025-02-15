@@ -12,6 +12,8 @@ typedef struct {
         Point point; // (Point)player_t
         Direction direction;
 
+        uint8_t score;
+
         // sprites
         gfx_sprite* sprite_head;
         gfx_sprite* sprite_body;

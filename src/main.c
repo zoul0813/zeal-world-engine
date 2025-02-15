@@ -1,5 +1,3 @@
-#include "main.h"
-
 #include <stdint.h>
 #include <stdio.h>
 #include <zgdk.h>
@@ -8,11 +6,12 @@
 #include <zos_vfs.h>
 #include <zos_video.h>
 
+#include "main.h"
 #include "assets.h"
 #include "player.h"
 
 gfx_context vctx;
-char buffer[20] = "\0";
+char buffer[10] = "\0";
 
 // uint8_t world_x = 0, world_y = 0, world_edge = EdgeNone;
 

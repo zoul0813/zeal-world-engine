@@ -11,15 +11,31 @@
 #define SLIDE_SPEED 4
 
 Vector2_u8 world_position;
+TileType screen[SCREEN_HEIGHT][SCREEN_WIDTH];
+
+/** WORLD FUNCTIONS */
 
 error world_init(gfx_context *ctx) {
     // load the screen the player starts on
-    world_position.x = 3;
-    world_position.y = 3;
+    world_position.x = 1;
+    world_position.y = 1;
     load_tilemap(ctx, world_position.x, world_position.y, 1, 0);
     tilemap_scroll_x(0, SCREEN_WIDTH);
     return ERR_SUCCESS;
 }
+
+void world_set_tile(uint8_t x, uint8_t y, uint8_t tile) {
+    // place tile on screen
+    gfx_tilemap_place(&vctx, tile, 0, x + WIDTH, y);
+    screen[y][x] = TILE_OPEN;
+
+    // place tile into world
+    tilemap[world_position.y][world_position.x][(y * WIDTH) + x] = tile;
+}
+
+
+
+/** SCREEN FUNCTIONS */
 
 void screen_slide(Point tilemap, const Edge world_edge, const Edge player_edge) {
     uint8_t frames = 0;
@@ -173,6 +189,10 @@ void screen_load(Vector2_u8 world, Edge edge) {
     world_position.y = world.y;
 }
 
+TileType screen_get_tile(uint8_t x, uint8_t y) {
+    return screen[y][x];
+}
+
 /**
  * Transition to the next screen
  *
@@ -235,4 +255,79 @@ uint8_t screen_transition(const Edge edge) {
     }
 
     return 0;
+}
+
+
+
+/** TILEMAP FUNCTIONS */
+
+void load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, uint8_t map_y)
+{
+    uint8_t line[20];
+    uint8_t* map = &tilemap[y][x][0];
+
+    for (uint16_t row = 0; row < 15; row++) {
+        uint16_t offset = row * 20;
+        for (uint16_t col = 0; col < 20; col++) {
+            uint8_t tile = map[offset + col];
+            TileType type = TILE_OPEN;
+
+            if((tile >= 1) && (tile <= 13)) {
+                type = TILE_WALL;
+            } else if((tile >= 16) && (tile <= 28)) {
+                type = TILE_WATER;
+            } else if(tile == 43) {
+                type = TILE_CHEST;
+            } else if(tile > 0) {
+                type = TILE_UNKNOWN;
+            }
+
+            screen[row][col] = type;
+
+            line[col] = tile;
+        }
+        gfx_tilemap_load(ctx, line, 20, 0, (map_x * 20), (map_y * 15) + row);
+    }
+}
+
+
+
+/** ASSETS */
+
+void __world_assets__(void) __naked {
+    __asm__(
+        "_tilemap:\n"
+        "    .incbin \"assets/maps/world-0000.ztm\"\n" // 0,0
+        "    .incbin \"assets/maps/world-0001.ztm\"\n" // 1,0
+        "    .incbin \"assets/maps/world-0002.ztm\"\n" // 2,0
+        "    .incbin \"assets/maps/world-0003.ztm\"\n" // 3,0
+        "    .incbin \"assets/maps/world-0004.ztm\"\n" // 4,0
+        "    .incbin \"assets/maps/world-0005.ztm\"\n" // 5,0
+        "    .incbin \"assets/maps/world-0006.ztm\"\n" // 6,0
+
+        "    .incbin \"assets/maps/world-0016.ztm\"\n" // 0,1
+        "    .incbin \"assets/maps/world-0017.ztm\"\n" // 1,1
+        "    .incbin \"assets/maps/world-0018.ztm\"\n" // 2,1
+        "    .incbin \"assets/maps/world-0019.ztm\"\n" // 3,1
+        "    .incbin \"assets/maps/world-0020.ztm\"\n" // 4,1
+        "    .incbin \"assets/maps/world-0021.ztm\"\n" // 5,1
+        "    .incbin \"assets/maps/world-0022.ztm\"\n" // 6,1
+
+        "    .incbin \"assets/maps/world-0032.ztm\"\n" // 0,2
+        "    .incbin \"assets/maps/world-0033.ztm\"\n" // 1,2
+        "    .incbin \"assets/maps/world-0034.ztm\"\n" // 2,2
+        "    .incbin \"assets/maps/world-0035.ztm\"\n" // 3,2
+        "    .incbin \"assets/maps/world-0036.ztm\"\n" // 4,2
+        "    .incbin \"assets/maps/world-0037.ztm\"\n" // 5,2
+        "    .incbin \"assets/maps/world-0038.ztm\"\n" // 6,2
+
+        "    .incbin \"assets/maps/world-0048.ztm\"\n" // 0,3
+        "    .incbin \"assets/maps/world-0049.ztm\"\n" // 1,3
+        "    .incbin \"assets/maps/world-0050.ztm\"\n" // 2,3
+        "    .incbin \"assets/maps/world-0051.ztm\"\n" // 3,3
+        "    .incbin \"assets/maps/world-0052.ztm\"\n" // 4,3
+        "    .incbin \"assets/maps/world-0053.ztm\"\n" // 5,3
+        "    .incbin \"assets/maps/world-0054.ztm\"\n" // 6,3
+        "__tilemap_end:\n"
+    );
 }

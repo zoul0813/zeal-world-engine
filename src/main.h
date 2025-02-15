@@ -30,6 +30,8 @@
 
 typedef uint8_t error;
 
+extern char buffer[10];
+
 void on_error(zos_err_t err);
 void init(void);
 void deinit(void);
