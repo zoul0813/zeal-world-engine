@@ -47,6 +47,7 @@ parser.add_argument("-i", "--input", help="Input GIF Filename", required=True)
 parser.add_argument("-m", "--tilemap", help="Zeal Tilemap (ZTM)")
 parser.add_argument("-l", "--layer", help="Tiled Layer to yse", type=int)
 parser.add_argument("-s", "--size", help="Screen Width/Height", action=DimensionAction, default=None)
+parser.add_argument("-v", "--verbose", help="Verbose output", action='store_true')
 
 def get_screen(layer):
   pass
@@ -93,17 +94,19 @@ def convert(args):
             for x in range(sw): # screen width
               offset = world_offset + (mw * y) + x
               tile = tiles[offset]
-              print("offset", {
-                "map_y": i,
-                "map_x": j,
-                "scr_y": y,
-                "scr_x": x,
-                "offset": offset,
-                "tile": tile
-              })
+              if args.verbose:
+                print("offset", {
+                  "map_y": i,
+                  "map_x": j,
+                  "scr_y": y,
+                  "scr_x": x,
+                  "offset": offset,
+                  "tile": tile
+                })
               line.append(tile)
             screen = screen + line
-          print("screen", len(screen), sh, sw)
+          if args.verbose:
+            print("screen", len(screen), sh, sw)
           maps.append(bytes(screen))
 
     else:
@@ -132,7 +135,8 @@ def main():
     if tilemapFileName == None:
       tilemapFileName = Path(args.input + "-" + str(idx).zfill(4)).with_suffix(".ztm")
 
-    print("tilemap", tilemapFileName) #, tilemap)
+    if args.verbose:
+      print("tilemap", tilemapFileName) #, tilemap)
     with open(tilemapFileName, "wb") as file:
       file.write(tilemap)
 
