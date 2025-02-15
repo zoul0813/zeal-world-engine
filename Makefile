@@ -91,9 +91,17 @@ endif
 
 GFX_COMPRESSED=1
 
+all:: clean-assets $(OUTPUT_DIR)
+	@echo "Creating asset bundle..."
+	mkdir -p assets/maps
+	./map2screen.py -i assets/world.tmx -m assets/maps/world.ztm -l 1 -s 20x15
+
 include $(ZGDK_PATH)/base_sdcc.mk
 
 ## Add your own rules here
 
 # all::
 # 	cp assets/sample.ptz bin/sample.ptz
+
+clean-assets:
+	rm -rf assets/maps

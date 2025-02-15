@@ -23,9 +23,6 @@ int main(void) {
 reset:
     reset();
 
-    load_tilemap(&vctx, 0, 0, 1, 0);
-    tilemap_scroll_x(0, SCREEN_WIDTH);
-
     while (true) {
         uint8_t action = input();
         if (action == ACTION_QUIT) goto quit_game;
@@ -80,6 +77,8 @@ void init(void) {
     ascii_map('Q', 10, 80);
     ascii_map('q', 10, 80);
     ascii_map('0', 10, 96);
+
+    world_init(&vctx);
 
     sprintf(buffer, "%03d %03d", world_position.x, world_position.y);
     nprint_string(&vctx, buffer, 7, 0, 0);

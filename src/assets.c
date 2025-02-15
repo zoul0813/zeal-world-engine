@@ -38,37 +38,37 @@ void __assets__(void) __naked {
 
     __asm__(
         "_tilemap:\n"
-        "    .incbin \"assets/maps/world-0.ztm\"\n" // 0,0
-        "    .incbin \"assets/maps/world-1.ztm\"\n" // 1,0
-        "    .incbin \"assets/maps/world-2.ztm\"\n" // 2,0
-        "    .incbin \"assets/maps/world-3.ztm\"\n" // 3,0
-        "    .incbin \"assets/maps/world-4.ztm\"\n" // 4,0
-        "    .incbin \"assets/maps/world-5.ztm\"\n" // 5,0
-        "    .incbin \"assets/maps/world-6.ztm\"\n" // 6,0
+        "    .incbin \"assets/maps/world-0000.ztm\"\n" // 0,0
+        "    .incbin \"assets/maps/world-0001.ztm\"\n" // 1,0
+        "    .incbin \"assets/maps/world-0002.ztm\"\n" // 2,0
+        "    .incbin \"assets/maps/world-0003.ztm\"\n" // 3,0
+        "    .incbin \"assets/maps/world-0004.ztm\"\n" // 4,0
+        "    .incbin \"assets/maps/world-0005.ztm\"\n" // 5,0
+        "    .incbin \"assets/maps/world-0006.ztm\"\n" // 6,0
 
-        "    .incbin \"assets/maps/world-16.ztm\"\n" // 0,1
-        "    .incbin \"assets/maps/world-17.ztm\"\n" // 1,1
-        "    .incbin \"assets/maps/world-18.ztm\"\n" // 2,1
-        "    .incbin \"assets/maps/world-19.ztm\"\n" // 3,1
-        "    .incbin \"assets/maps/world-20.ztm\"\n" // 4,1
-        "    .incbin \"assets/maps/world-21.ztm\"\n" // 5,1
-        "    .incbin \"assets/maps/world-22.ztm\"\n" // 6,1
+        "    .incbin \"assets/maps/world-0016.ztm\"\n" // 0,1
+        "    .incbin \"assets/maps/world-0017.ztm\"\n" // 1,1
+        "    .incbin \"assets/maps/world-0018.ztm\"\n" // 2,1
+        "    .incbin \"assets/maps/world-0019.ztm\"\n" // 3,1
+        "    .incbin \"assets/maps/world-0020.ztm\"\n" // 4,1
+        "    .incbin \"assets/maps/world-0021.ztm\"\n" // 5,1
+        "    .incbin \"assets/maps/world-0022.ztm\"\n" // 6,1
 
-        "    .incbin \"assets/maps/world-32.ztm\"\n" // 0,2
-        "    .incbin \"assets/maps/world-33.ztm\"\n" // 1,2
-        "    .incbin \"assets/maps/world-34.ztm\"\n" // 2,2
-        "    .incbin \"assets/maps/world-35.ztm\"\n" // 3,2
-        "    .incbin \"assets/maps/world-36.ztm\"\n" // 4,2
-        "    .incbin \"assets/maps/world-37.ztm\"\n" // 5,2
-        "    .incbin \"assets/maps/world-38.ztm\"\n" // 6,2
+        "    .incbin \"assets/maps/world-0032.ztm\"\n" // 0,2
+        "    .incbin \"assets/maps/world-0033.ztm\"\n" // 1,2
+        "    .incbin \"assets/maps/world-0034.ztm\"\n" // 2,2
+        "    .incbin \"assets/maps/world-0035.ztm\"\n" // 3,2
+        "    .incbin \"assets/maps/world-0036.ztm\"\n" // 4,2
+        "    .incbin \"assets/maps/world-0037.ztm\"\n" // 5,2
+        "    .incbin \"assets/maps/world-0038.ztm\"\n" // 6,2
 
-        "    .incbin \"assets/maps/world-48.ztm\"\n" // 0,3
-        "    .incbin \"assets/maps/world-49.ztm\"\n" // 1,3
-        "    .incbin \"assets/maps/world-50.ztm\"\n" // 2,3
-        "    .incbin \"assets/maps/world-51.ztm\"\n" // 3,3
-        "    .incbin \"assets/maps/world-52.ztm\"\n" // 4,3
-        "    .incbin \"assets/maps/world-53.ztm\"\n" // 5,3
-        "    .incbin \"assets/maps/world-54.ztm\"\n" // 6,3
+        "    .incbin \"assets/maps/world-0048.ztm\"\n" // 0,3
+        "    .incbin \"assets/maps/world-0049.ztm\"\n" // 1,3
+        "    .incbin \"assets/maps/world-0050.ztm\"\n" // 2,3
+        "    .incbin \"assets/maps/world-0051.ztm\"\n" // 3,3
+        "    .incbin \"assets/maps/world-0052.ztm\"\n" // 4,3
+        "    .incbin \"assets/maps/world-0053.ztm\"\n" // 5,3
+        "    .incbin \"assets/maps/world-0054.ztm\"\n" // 6,3
         "__tilemap_end:\n"
     );
 }

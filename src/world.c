@@ -4,13 +4,22 @@
 #include "main.h"
 #include "player.h"
 
+/**
+ * It is assumed the viewport is always the screen 0,1 on the tilemap
+ */
+
 #define SLIDE_SPEED 4
 
 Vector2_u8 world_position;
 
-/**
- * It is assumed the viewport is always the screen 0,1 on the tilemap
- */
+error world_init(gfx_context *ctx) {
+    // load the screen the player starts on
+    world_position.x = 3;
+    world_position.y = 3;
+    load_tilemap(ctx, world_position.x, world_position.y, 1, 0);
+    tilemap_scroll_x(0, SCREEN_WIDTH);
+    return ERR_SUCCESS;
+}
 
 void screen_slide(Point tilemap, const Edge world_edge, const Edge player_edge) {
     uint8_t frames = 0;

@@ -126,11 +126,11 @@ def main():
       p = Path(args.tilemap)
       index = ""
       if len(maps) > 1:
-        index = f"-{str(idx)}"
+        index = f"-{str(idx).zfill(4)}"
       tilemapFileName = p.parent / f"{p.stem}{index}{p.suffix}"
 
     if tilemapFileName == None:
-      tilemapFileName = Path(args.input + "-" + str(idx)).with_suffix(".ztm")
+      tilemapFileName = Path(args.input + "-" + str(idx).zfill(4)).with_suffix(".ztm")
 
     print("tilemap", tilemapFileName) #, tilemap)
     with open(tilemapFileName, "wb") as file:
