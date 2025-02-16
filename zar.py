@@ -34,11 +34,13 @@ def generate_zar_filenames(filenames):
     base = re.sub(r'[^a-zA-Z0-9]', '', base)
     ext = re.sub(r'[^a-zA-Z0-9]', '', ext)
 
-    short_name = base[:MAX_BASENAME] + ext[:MAX_EXTENSION]
-    count = seen.get(short_name, 0)
+    base_name = base[:MAX_BASENAME] + ext[:MAX_EXTENSION]
+    count = seen.get(base_name, 0)
     if count > 0:
-      short_name = short_name[:MAX_FILENAME - 3] + str(count).zfill(3)
-    seen[short_name] = count + 1
+      short_name = short_name[:MAX_BASENAME - 3] + str(count).zfill(3) + ext[:MAX_EXTENSION]
+    else:
+      short_name = base_name
+    seen[base_name] = count + 1
 
     short_name = short_name.ljust(MAX_FILENAME, '\x00')
     normalized[name] = short_name
