@@ -29,7 +29,7 @@ def generate_zar_filenames(filenames, max_length=8):
     short_name = base[:max_length]
     count = seen.get(short_name, 0)
     if count > 0:
-      short_name = short_name[:max_length - 2] + str(count)
+      short_name = short_name[:max_length - 3] + str(count).zfill(3)
     seen[short_name] = count + 1
 
     short_name = short_name.ljust(max_length, '\x00')
@@ -116,7 +116,7 @@ def extract(args):
       pointer,size = data
       input.seek(pointer)
       data = input.read(size)
-      if args.verbose:
+      if args.verbose or args.list:
         print(short, pointer, size)
       if not args.list:
         with open(os.path.join(args.output, short), "wb") as output:
