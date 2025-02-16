@@ -43,10 +43,21 @@ void init(void) {
     handle_error(err, "failed to init keyboard", 1);
     input_flush();
 
-    printf("Loading assets...\n");
-    load_asset_file("world.zgb");
+    // disable the screen to prevent artifacts from showing
+    gfx_enable_screen(0);
+
+    err = gfx_initialize(ZVB_CTRL_VID_MODE_GFX_320_8BIT, &vctx);
+    handle_error(err, "failed to init graphics", 1);
+
+    load_asset_file("world.zar");
 
     sprites_register_arena(SPRITE_ARENA, MAX_SPRITES);
+
+    clear_tilemap(0, 0, 0, 80, 40);  // clear all layer0 memory
+    clear_tilemap(1, 0, 0, 80, 40);  // clear all layer1 memory
+
+    err = load_palette(&vctx);
+    handle_error(err, "failed to load palette", 1);
 
     gfx_tileset_options options = {
         .compression = TILESET_COMP_RLE,
@@ -120,7 +131,7 @@ uint8_t input(void) {
     return 0;
 }
 
-void clear_tilemap(uint8_t x, uint8_t y, uint16_t width, uint16_t height, uint8_t layer) {
+void clear_tilemap(uint8_t layer, uint8_t x, uint8_t y, uint16_t width, uint16_t height) {
     uint8_t line[80];
     for (uint16_t row = 0; row < height; row++) {
         for (uint16_t col = 0; col < width; col++) {

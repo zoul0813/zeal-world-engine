@@ -90,17 +90,21 @@ ifndef ZGDK_PATH
 endif
 
 GFX_COMPRESSED=1
+GFX_STRIP=128
 
 all:: clean-assets $(OUTPUT_DIR)
 	@echo "Creating asset bundle..."
 	mkdir -p assets/maps
-	./map2screen.py -i assets/world.tmx -m assets/maps/world.ztm -l 1 -s 20x15
+	./map2screen.py -i assets/world.tmx -m assets/maps/scrn.ztm -l 1 -s 20x15
 
 include $(ZGDK_PATH)/base_sdcc.mk
 
 all::
-	$(ZOS_PATH)/packer/pack bin/world.zgb assets/spritesheet.ztp assets/spritesheet.zts assets/maps/*
-	ls -l bin/world.zgb
+	mkdir -p assets/archive
+	cp assets/spritesheet.ztp assets/spritesheet.zts assets/archive
+	cp assets/maps/* assets/archive
+	./zar.py -i assets/archive -o bin/world.zar
+	ls -l bin/world.zar
 
 ## Add your own rules here
 
@@ -109,3 +113,4 @@ all::
 
 clean-assets:
 	rm -rf assets/maps
+	rm -rf assets/archive
