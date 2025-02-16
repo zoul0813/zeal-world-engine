@@ -90,6 +90,7 @@ ifndef ZGDK_PATH
 endif
 
 GFX_COMPRESSED=1
+GFX_STRIP=128
 
 all:: clean-assets $(OUTPUT_DIR)
 	@echo "Creating asset bundle..."

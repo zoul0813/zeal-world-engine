@@ -50,13 +50,13 @@ void init(void) {
     // disable the screen to prevent artifacts from showing
     gfx_enable_screen(0);
 
-    clear_tilemap(0, 0, 80, 40, 0);  // clear all layer0 memory
-    clear_tilemap(0, 0, 80, 40, 1);  // clear all layer1 memory
-
     sprites_register_arena(SPRITE_ARENA, MAX_SPRITES);
 
     err = gfx_initialize(ZVB_CTRL_VID_MODE_GFX_320_8BIT, &vctx);
     handle_error(err, "failed to init graphics", 1);
+
+    clear_tilemap(0, 0, 0, 80, 40);  // clear all layer0 memory
+    clear_tilemap(1, 0, 0, 80, 40);  // clear all layer1 memory
 
     err = load_palette(&vctx);
     handle_error(err, "failed to load palette", 1);
@@ -126,13 +126,14 @@ uint8_t input(void) {
     return 0;
 }
 
-void clear_tilemap(uint8_t x, uint8_t y, uint16_t width, uint16_t height, uint8_t layer) {
+void clear_tilemap(uint8_t layer, uint8_t x, uint8_t y, uint16_t width, uint16_t height) {
     uint8_t line[80];
     for (uint16_t row = 0; row < height; row++) {
         for (uint16_t col = 0; col < width; col++) {
             line[col] = 0xFF;
         }
-        gfx_tilemap_load(&vctx, line, width, layer, x, y + row);
+        gfx_error err = gfx_tilemap_load(&vctx, line, width, layer, x, y + row);
+        handle_error(err, "failed to clear tilemap", 1);
     }
 }
 

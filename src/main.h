@@ -39,7 +39,7 @@ void reset(void);
 uint8_t input(void);
 // error load_level(uint8_t which);
 void load_screen(uint8_t x, uint8_t y);
-void clear_tilemap(uint8_t x, uint8_t y, uint16_t width, uint16_t height, uint8_t layer);
+void clear_tilemap(uint8_t layer, uint8_t x, uint8_t y, uint16_t width, uint16_t height);
 
 void update(void);
 void draw_paused(uint8_t paused);
