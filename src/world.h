@@ -5,7 +5,7 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-#define WORLD_WIDTH 7
+#define WORLD_WIDTH  8
 #define WORLD_HEIGHT 4
 #define SCREEN_TILES (20 * 15)
 

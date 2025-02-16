@@ -1,9 +1,15 @@
 #include <stdio.h>
+#include <zos_sys.h>
+#include <zos_vfs.h>
 #include <zvb_gfx.h>
-#include <zgdk.h>
+
 #include "assets.h"
 
 gfx_sprite SPRITE_ARENA[MAX_SPRITES];
+uint8_t _palette_end;
+uint8_t _palette_start;
+uint8_t _tileset_end;
+uint8_t _tileset_start;
 
 gfx_error load_palette(gfx_context* ctx) {
     // Load the palette
@@ -16,44 +22,48 @@ gfx_error load_tileset(gfx_context* ctx, gfx_tileset_options* options) {
     return gfx_tileset_load(ctx, &_tileset_start, size, options);
 }
 
-void __assets__(void) __naked {
-    INCLUDE_ASSET("palette", "assets/spritesheet.ztp");
-    INCLUDE_ASSET("tileset", "assets/spritesheet.zts");
-    // INCLUDE_ASSET("tilemap", "assets/maps/world-0.ztm");
+// void __assets__(void) __naked {
+//     INCLUDE_ASSET("palette", "assets/spritesheet.ztp");
+//     INCLUDE_ASSET("tileset", "assets/spritesheet.zts");
+// }
 
-    // __asm__(
-    //     "_tilemap:\n"
-    //     "    .incbin \"assets/maps/world-0000.ztm\"\n" // 0,0
-    //     "    .incbin \"assets/maps/world-0001.ztm\"\n" // 1,0
-    //     "    .incbin \"assets/maps/world-0002.ztm\"\n" // 2,0
-    //     "    .incbin \"assets/maps/world-0003.ztm\"\n" // 3,0
-    //     "    .incbin \"assets/maps/world-0004.ztm\"\n" // 4,0
-    //     "    .incbin \"assets/maps/world-0005.ztm\"\n" // 5,0
-    //     "    .incbin \"assets/maps/world-0006.ztm\"\n" // 6,0
+error load_asset_file(const char *path) {
+    zos_dev_t fd = open(path, O_RDONLY);
+    if(fd < 0) {
+        printf("error %d [%02x]: loading %s\n", -fd, -fd, path);
+        exit(-fd);
+    }
 
-    //     "    .incbin \"assets/maps/world-0016.ztm\"\n" // 0,1
-    //     "    .incbin \"assets/maps/world-0017.ztm\"\n" // 1,1
-    //     "    .incbin \"assets/maps/world-0018.ztm\"\n" // 2,1
-    //     "    .incbin \"assets/maps/world-0019.ztm\"\n" // 3,1
-    //     "    .incbin \"assets/maps/world-0020.ztm\"\n" // 4,1
-    //     "    .incbin \"assets/maps/world-0021.ztm\"\n" // 5,1
-    //     "    .incbin \"assets/maps/world-0022.ztm\"\n" // 6,1
+    /**
+     * ## ZGB Header
+     * ZGB 0            "ZGB" {Version}
+     * 0x01             {Number of Files, up to 255}
+     *
+     * ## File start/size
+     * 0xFFFF 0xFFFF    {Start, Size}
+     * 0xFFFF 0xFFFF    {Start, Size}
+     * ......
+     *
+     * ## Data
+     * ......
+     */
 
-    //     "    .incbin \"assets/maps/world-0032.ztm\"\n" // 0,2
-    //     "    .incbin \"assets/maps/world-0033.ztm\"\n" // 1,2
-    //     "    .incbin \"assets/maps/world-0034.ztm\"\n" // 2,2
-    //     "    .incbin \"assets/maps/world-0035.ztm\"\n" // 3,2
-    //     "    .incbin \"assets/maps/world-0036.ztm\"\n" // 4,2
-    //     "    .incbin \"assets/maps/world-0037.ztm\"\n" // 5,2
-    //     "    .incbin \"assets/maps/world-0038.ztm\"\n" // 6,2
+    // size_t  POSITION_SIZE = 4; // 0xFFFF 0xFFFF
+    // uint8_t palette_count = 1;
+    // uint8_t sprite_count = 1;
+    // uint8_t map_count = 128;
+    // uint8_t track_count = 0;
 
-    //     "    .incbin \"assets/maps/world-0048.ztm\"\n" // 0,3
-    //     "    .incbin \"assets/maps/world-0049.ztm\"\n" // 1,3
-    //     "    .incbin \"assets/maps/world-0050.ztm\"\n" // 2,3
-    //     "    .incbin \"assets/maps/world-0051.ztm\"\n" // 3,3
-    //     "    .incbin \"assets/maps/world-0052.ztm\"\n" // 4,3
-    //     "    .incbin \"assets/maps/world-0053.ztm\"\n" // 5,3
-    //     "    .incbin \"assets/maps/world-0054.ztm\"\n" // 6,3
-    //     "__tilemap_end:\n"
-    // );
+    // uint8_t map_index = 2;
+
+    // uint16_t map_start = (((palette_count + sprite_count) * POSITION_SIZE) + 8) + (POSITION_SIZE * 2);
+    // uint16_t map_addr, map_size;
+    // read(fd, &map_addr, sizeof(uint16_t));
+    // read(fd, &map_size, sizeof(uint16_t));
+
+    // seek(fd, map_addr, SEEK_SET);
+    // read(fd, &map_data, &map_size);
+
+    close(fd);
+    return ERR_SUCCESS;
 }

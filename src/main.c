@@ -1,23 +1,19 @@
 #include <stdint.h>
 #include <stdio.h>
-#include <zgdk.h>
 #include <zos_errors.h>
 #include <zos_sys.h>
 #include <zos_vfs.h>
 #include <zos_video.h>
+#include <zgdk.h>
 
 #include "main.h"
 #include "assets.h"
 #include "player.h"
 
 gfx_context vctx;
-char buffer[10] = "\0";
-
-// uint8_t world_x = 0, world_y = 0, world_edge = EdgeNone;
+char buffer[20] = "\0";
 
 int main(void) {
-    // load_tilemap(get_tilemap_start(), WIDTH, HEIGHT, 0); exit(2);
-
     init();
 reset:
     reset();
@@ -47,19 +43,10 @@ void init(void) {
     handle_error(err, "failed to init keyboard", 1);
     input_flush();
 
-    // disable the screen to prevent artifacts from showing
-    gfx_enable_screen(0);
-
-    clear_tilemap(0, 0, 80, 40, 0);  // clear all layer0 memory
-    clear_tilemap(0, 0, 80, 40, 1);  // clear all layer1 memory
+    printf("Loading assets...\n");
+    load_asset_file("world.zgb");
 
     sprites_register_arena(SPRITE_ARENA, MAX_SPRITES);
-
-    err = gfx_initialize(ZVB_CTRL_VID_MODE_GFX_320_8BIT, &vctx);
-    handle_error(err, "failed to init graphics", 1);
-
-    err = load_palette(&vctx);
-    handle_error(err, "failed to load palette", 1);
 
     gfx_tileset_options options = {
         .compression = TILESET_COMP_RLE,
@@ -76,6 +63,18 @@ void init(void) {
     ascii_map('Q', 10, 80);
     ascii_map('q', 10, 80);
     ascii_map('0', 10, 96);
+
+    // disable the screen to prevent artifacts from showing
+    gfx_enable_screen(0);
+
+    err = gfx_initialize(ZVB_CTRL_VID_MODE_GFX_320_8BIT, &vctx);
+    handle_error(err, "failed to init graphics", 1);
+
+    err = load_palette(&vctx);
+    handle_error(err, "failed to load palette", 1);
+
+    clear_tilemap(0, 0, 80, 40, 0);  // clear all layer0 memory
+    clear_tilemap(0, 0, 80, 40, 1);  // clear all layer1 memory
 
     world_init(&vctx);
 
@@ -116,11 +115,6 @@ uint8_t input(void) {
     if (UP1) player.direction.y = DIRECTION_UP;
     if (DOWN1) player.direction.y = DIRECTION_DOWN;
 
-    // if(LEFT1 && world_x > 0) world_x--;
-    // if(RIGHT1 && world_x < (WORLD_WIDTH-1)) world_x++;
-    // if(UP1 && world_y > 0) world_y--;
-    // if(DOWN1 && world_y < (WORLD_HEIGHT - 1)) world_y++;
-
     if (SELECT1) return ACTION_QUIT;
 
     return 0;
@@ -132,7 +126,8 @@ void clear_tilemap(uint8_t x, uint8_t y, uint16_t width, uint16_t height, uint8_
         for (uint16_t col = 0; col < width; col++) {
             line[col] = 0xFF;
         }
-        gfx_tilemap_load(&vctx, line, width, layer, x, y + row);
+        gfx_error err = gfx_tilemap_load(&vctx, line, width, layer, x, y + row);
+        handle_error(err, "failed to clear tilemap", 1);
     }
 }
 

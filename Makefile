@@ -98,6 +98,10 @@ all:: clean-assets $(OUTPUT_DIR)
 
 include $(ZGDK_PATH)/base_sdcc.mk
 
+all::
+	$(ZOS_PATH)/packer/pack bin/world.zgb assets/spritesheet.ztp assets/spritesheet.zts assets/maps/*
+	ls -l bin/world.zgb
+
 ## Add your own rules here
 
 # all::

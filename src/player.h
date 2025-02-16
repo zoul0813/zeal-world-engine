@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <zvb_sprite.h>
 #include <zgdk.h>
+
 #include "main.h"
 
 #ifndef PLAYER_H
