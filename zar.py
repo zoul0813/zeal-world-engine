@@ -13,9 +13,16 @@ parser.add_argument("-v", "--verbose", help="Verbose output", action='store_true
 parser.add_argument("-x", "--extract", help="Extract Input to Output", action='store_true')
 parser.add_argument("-l", "--list", help="List archive files", action='store_true')
 
-FILE_HEADER_SIZE = 12 # uint16_t, uint16_t, char[8]
 
-def generate_zar_filenames(filenames, max_length=8):
+MAX_BASENAME     = 8
+MAX_EXTENSION    = 3
+MAX_FILENAME     = MAX_BASENAME + MAX_EXTENSION
+FILE_HEADER_SIZE = 4 + MAX_FILENAME + MAX_EXTENSION # uint16_t, uint16_t, char[8]
+
+def zar_to_os(filename):
+  return filename[:MAX_BASENAME].rstrip('\x00') + "." + filename[MAX_BASENAME:].rstrip('\x00')
+
+def generate_zar_filenames(filenames):
   seen = {}
   normalized = {}
 
@@ -23,16 +30,17 @@ def generate_zar_filenames(filenames, max_length=8):
 
   for name in filtered_filenames:
     # Remove non-alphanumeric characters (optional)
-    base, _ = os.path.splitext(os.path.basename(name))
+    base, ext = os.path.splitext(os.path.basename(name))
     base = re.sub(r'[^a-zA-Z0-9]', '', base)
+    ext = re.sub(r'[^a-zA-Z0-9]', '', ext)
 
-    short_name = base[:max_length]
+    short_name = base[:MAX_BASENAME] + ext[:MAX_EXTENSION]
     count = seen.get(short_name, 0)
     if count > 0:
-      short_name = short_name[:max_length - 3] + str(count).zfill(3)
+      short_name = short_name[:MAX_FILENAME - 3] + str(count).zfill(3)
     seen[short_name] = count + 1
 
-    short_name = short_name.ljust(max_length, '\x00')
+    short_name = short_name.ljust(MAX_FILENAME, '\x00')
     normalized[name] = short_name
   return normalized
 
@@ -107,19 +115,20 @@ def extract(args):
       pointer = struct.unpack("H", data)[0]
       data = input.read(2)
       size = struct.unpack("H", data)[0]
-      data = input.read(8)
+      data = input.read(MAX_FILENAME)
       short = data.decode("ascii").rstrip('\x00')
 
       files[short] = (pointer,size)
 
     for short,data in files.items():
+      short_name = zar_to_os(short)
       pointer,size = data
       input.seek(pointer)
       data = input.read(size)
       if args.verbose or args.list:
-        print(short, pointer, size)
+        print(short_name, pointer, size)
       if not args.list:
-        with open(os.path.join(args.output, short), "wb") as output:
+        with open(os.path.join(args.output, short_name), "wb") as output:
           output.write(data)
 
 
