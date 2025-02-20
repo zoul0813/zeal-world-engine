@@ -10,7 +10,6 @@
 
 Vector2_u8 world_position;
 TileType SCREEN[SCREEN_HEIGHT][SCREEN_WIDTH];
-// uint8_t TILEMAP[SCREEN_TILES];
 
 /** WORLD FUNCTIONS */
 

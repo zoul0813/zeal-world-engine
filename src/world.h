@@ -5,8 +5,8 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-#define WORLD_WIDTH  8
-#define WORLD_HEIGHT 4
+#define WORLD_WIDTH  16
+#define WORLD_HEIGHT 8
 #define SCREEN_TILES (20 * 15)
 
 extern Vector2_u8 world_position;

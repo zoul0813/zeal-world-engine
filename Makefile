@@ -92,20 +92,19 @@ endif
 # EXTRA_CFLAGS = --nostdlib --no-xinit-opt
 
 GFX_COMPRESSED=1
-GFX_STRIP=192
+GFX_STRIP=128
 ENABLE_ZAR=1
 
 all:: clean-assets $(OUTPUT_DIR)
 	@echo "Creating asset bundle..."
-	mkdir -p assets/maps
-	./map2screen.py -i assets/world.tmx -m assets/maps/scrn.ztm -l 1 -s 20x15
+	mkdir -p assets/archive
+	./map2screen.py -i assets/world.tmx -m assets/archive/scrn.ztm -l 1 -s 20x15
 
 include $(ZGDK_PATH)/base_sdcc.mk
 
 all::
 	mkdir -p assets/archive
 	cp assets/spritesheet.ztp assets/spritesheet.zts assets/archive
-	cp assets/maps/* assets/archive
 	$(ZAR_PATH)/zar.py -i assets/archive -o bin/world.zar
 	ls -l bin/world.zar
 

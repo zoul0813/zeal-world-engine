@@ -34,7 +34,7 @@ quit_game:
 void handle_error(zos_err_t err, const char* message, uint8_t fatal) {
     if (err != ERR_SUCCESS) {
         if (fatal) deinit();
-        printf("\nError[%d] (%02x) %s\n", err, err, message);
+        printf("\nError[%d] (%02x) failed to %s\n", err, err, message);
         if (fatal) exit(err);
     }
 }
@@ -42,17 +42,14 @@ void handle_error(zos_err_t err, const char* message, uint8_t fatal) {
 void init(void) {
     zos_err_t err;
     err = input_init(1);
-    handle_error(err, "failed to init keyboard", 1);
+    handle_error(err, "init keyboard", 1);
     input_flush();
 
-    printf("Loading ZAR data file...\n");
     err = load_asset_file("world.zar");
-    handle_error(err, "failed to load zar", 1);
+    handle_error(err, "load zar", 1);
 
-    printf("Registering sprite arena...\n");
     sprites_register_arena(SPRITE_ARENA, MAX_SPRITES);
 
-    printf("Mapping ASCII fonts...\n");
     ascii_map(' ', 1, 90);
     ascii_map('A', 16, 64);
     ascii_map('a', 16, 64);
@@ -64,29 +61,28 @@ void init(void) {
     gfx_enable_screen(0);
 
     err = gfx_initialize(ZVB_CTRL_VID_MODE_GFX_320_8BIT, &vctx);
-    handle_error(err, "failed to init graphics", 1);
+    handle_error(err, "init graphics", 1);
 
     err = load_palette(&vctx);
-    handle_error(err, "failed to load palette", 1);
+    handle_error(err, "load palette", 1);
 
     gfx_tileset_options options = {
         .compression = TILESET_COMP_RLE,
     };
     err = load_tileset(&vctx, &options);
-    handle_error(err, "failed to load tileset", 1);
+    handle_error(err, "load tileset", 1);
 
     clear_tilemap(0, 0, 0, 80, 40);  // clear all layer0 memory
     clear_tilemap(1, 0, 0, 80, 40);  // clear all layer1 memory
 
     err = player_init();
-    handle_error(err, "failed to init player", 1);
-
+    handle_error(err, "init player", 1);
 
     clear_tilemap(0, 0, 80, 40, 0);  // clear all layer0 memory
     clear_tilemap(0, 0, 80, 40, 1);  // clear all layer1 memory
 
     err = world_init(&vctx);
-    handle_error(err, "failed to initialize world", 1);
+    handle_error(err, "initialize world", 1);
 
     sprintf(buffer, "%03d %03d", world_position.x, world_position.y);
     nprint_string(&vctx, buffer, 7, 0, 0);
@@ -104,7 +100,7 @@ void deinit(void) {
 
     error err;
     err = player_deinit();
-    handle_error(err, "failed to deinit player", 0);
+    handle_error(err, "deinit player", 0);
 }
 
 void reset(void) {
@@ -137,7 +133,7 @@ void clear_tilemap(uint8_t layer, uint8_t x, uint8_t y, uint16_t width, uint16_t
             line[col] = 0xFF;
         }
         gfx_error err = gfx_tilemap_load(&vctx, line, width, layer, x, y + row);
-        handle_error(err, "failed to clear tilemap", 1);
+        handle_error(err, "clear tilemap", 1);
     }
 }
 

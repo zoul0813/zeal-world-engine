@@ -9,6 +9,8 @@
 
 extern gfx_sprite SPRITE_ARENA[MAX_SPRITES];
 extern uint8_t data[MAX_DATA_KB * 1024];
+extern zar_file_t zar_file;
+extern zar_file_entry_t entry;
 
 zos_err_t load_palette(gfx_context* ctx);
 zos_err_t load_tileset(gfx_context* ctx, gfx_tileset_options* options);

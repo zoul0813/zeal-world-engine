@@ -59,17 +59,17 @@ Edge player_move(void)
 
     TileType type = screen_get_tile(tx, ty);
 
-    // type
-    sprintf(buffer, "%03d", type);
-    nprint_string(&vctx, buffer, 3, 0, HEIGHT-3);
+    // // type
+    // sprintf(buffer, "%03d", type);
+    // nprint_string(&vctx, buffer, 3, 0, HEIGHT-3);
 
     // // player x,y
     // sprintf(buffer, "%03d %03d", player.point.x, player.point.y);
     // nprint_string(&vctx, buffer, 7, 0, HEIGHT-2);
 
-    // screen x,y
-    sprintf(buffer, "%03d %03d", tx, ty);
-    nprint_string(&vctx, buffer, 7, 0, HEIGHT-1);
+    // // screen x,y
+    // sprintf(buffer, "%03d %03d", tx, ty);
+    // nprint_string(&vctx, buffer, 7, 0, HEIGHT-1);
 
     switch(type) {
         case TILE_UNKNOWN: // fall thru

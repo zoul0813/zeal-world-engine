@@ -6,8 +6,8 @@
 #include "assets.h"
 
 gfx_sprite SPRITE_ARENA[MAX_SPRITES];
-static zar_file_t zar_file;
-static zar_file_entry_t entry;
+zar_file_t zar_file;
+zar_file_entry_t entry;
 uint8_t data[MAX_DATA_KB * 1024];
 
 zos_err_t load_asset_file(const char *path) {
@@ -49,7 +49,8 @@ zos_err_t load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, ui
     (void)x;
     (void)y;
 
-    zos_err_t err = err = zar_file_entry_from_name(&zar_file, "scrn0000.ztm", &entry);
+    uint8_t offset = (y * WORLD_WIDTH) + x;
+    zos_err_t err = zar_file_entry_from_index(&zar_file, offset, &entry);
     if(err != ERR_SUCCESS) return err | 0xC0;
 
     uint16_t size = entry.size;
