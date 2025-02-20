@@ -19,9 +19,8 @@ typedef enum {
     TILE_UNKNOWN  = 255,  // unknown, assume an obstruction
 } TileType;
 
-extern uint8_t tilemap[WORLD_HEIGHT][WORLD_WIDTH][SCREEN_TILES];
-extern TileType screen[SCREEN_HEIGHT][SCREEN_WIDTH];
-void load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, uint8_t map_y);
+// extern uint8_t TILEMAP[SCREEN_TILES];
+extern TileType SCREEN[SCREEN_HEIGHT][SCREEN_WIDTH];
 
 error world_init(gfx_context* ctx);
 void world_set_tile(uint8_t x, uint8_t y, uint8_t tile);

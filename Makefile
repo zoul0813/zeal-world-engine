@@ -89,8 +89,11 @@ ifndef ZGDK_PATH
 	$(error "Failure: ZGDK_PATH variable not found. It must point to ZGDK path.")
 endif
 
+# EXTRA_CFLAGS = --nostdlib --no-xinit-opt
+
 GFX_COMPRESSED=1
-GFX_STRIP=128
+GFX_STRIP=192
+ENABLE_ZAR=1
 
 all:: clean-assets $(OUTPUT_DIR)
 	@echo "Creating asset bundle..."
@@ -103,7 +106,7 @@ all::
 	mkdir -p assets/archive
 	cp assets/spritesheet.ztp assets/spritesheet.zts assets/archive
 	cp assets/maps/* assets/archive
-	./zar.py -i assets/archive -o bin/world.zar
+	$(ZAR_PATH)/zar.py -i assets/archive -o bin/world.zar
 	ls -l bin/world.zar
 
 ## Add your own rules here

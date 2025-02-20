@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <zos_errors.h>
 #include <zvb_gfx.h>
