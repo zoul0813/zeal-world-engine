@@ -1,3 +1,4 @@
+#include "world.h"
 #include "assets.h"
 #include "main.h"
 #include "player.h"
