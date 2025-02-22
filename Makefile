@@ -95,24 +95,25 @@ GFX_COMPRESSED=1
 GFX_STRIP=128
 ENABLE_ZAR=1
 
-all:: clean-assets $(OUTPUT_DIR)
-	@echo "Creating asset bundle..."
-	mkdir -p assets/archive
-	./map2screen.py -i assets/world.tmx -m assets/archive/scrn.ztm -l 1 -s 20x15
+ZGDK_DEBUG=1
+
+TILED_SIZE=20x15
+TILED_LAYER=1
+TILED_OUTPUT=assets/archive/__scrn.tmx
+ASSETS_INPUT=assets
+ASSETS_OUTPUT=assets/archive
+
+all:: clean-assets
 
 include $(ZGDK_PATH)/base_sdcc.mk
 
-all::
-	mkdir -p assets/archive
-	cp assets/spritesheet.ztp assets/spritesheet.zts assets/archive
-	$(ZAR_PATH)/zar.py -i assets/archive -o bin/world.zar
-	ls -l bin/world.zar
-
 ## Add your own rules here
 
-# all::
-# 	cp assets/sample.ptz bin/sample.ptz
+all::
+	mkdir -p assets/archive
+	$(ZAR_PATH)/zar.py -i $(ASSETS_OUTPUT) -o bin/world.zar
+	ls -l bin/world.zar
 
 clean-assets:
-	rm -rf assets/maps
+
 	rm -rf assets/archive

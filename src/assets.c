@@ -50,7 +50,7 @@ zos_err_t load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, ui
     (void)y;
 
     uint8_t offset = (y * WORLD_WIDTH) + x;
-    zos_err_t err = zar_file_entry_from_index(&zar_file, offset, &entry);
+    zos_err_t err = zar_file_entry_from_index(&zar_file, TILEMAP_OFFSET + offset, &entry);
     if(err != ERR_SUCCESS) return err | 0xC0;
 
     uint16_t size = entry.size;
