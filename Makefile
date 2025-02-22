@@ -99,7 +99,8 @@ ZGDK_DEBUG=1
 
 TILED_SIZE=20x15
 TILED_LAYER=1
-TILED_OUTPUT=assets/archive/__scrn.tmx
+TILED_COMPRESSED=1
+TILED_OUTPUT=assets/archive/__scrn.map
 ASSETS_INPUT=assets
 ASSETS_OUTPUT=assets/archive
 

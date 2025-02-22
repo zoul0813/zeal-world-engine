@@ -44,6 +44,35 @@ zos_err_t load_tileset(gfx_context* ctx, gfx_tileset_options* options) {
 
 /** TILEMAP FUNCTIONS */
 
+void _decompress(uint8_t *data, uint8_t size, uint8_t *buffer, uint8_t buffer_size) {
+    uint8_t length = 0;
+    uint16_t i = 0; // data index
+    uint16_t j = 0; // buffer index
+    uint8_t k;
+    uint16_t length_of_data = size - 1;
+
+    while(i < length_of_data) {
+        length = data[i];
+        i++;
+        if(length >= 0x80) {
+            length = (length - 0x80) + 1;
+            uint8_t value = data[i];
+            while(length--) {
+                buffer[j++] = value;
+            }
+            i++;
+        } else {
+            length++;
+            // memcpy(&buffer[j], &data[i], length)
+            for(k = 0; k < length; k++) {
+                buffer[j] = data[i];
+            }
+            i += length;
+            j += length;
+        }
+    }
+}
+
 zos_err_t load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, uint8_t map_y) {
     (void)x;
     (void)y;
@@ -53,8 +82,12 @@ zos_err_t load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, ui
     if (err != ERR_SUCCESS) return err | 0xC0;
 
     uint16_t size = entry.size;
-    err = zar_file_read(&zar_file, &entry, data, &size);
+    uint8_t *rle_data = &data[WIDTH * HEIGHT];
+    err = zar_file_read(&zar_file, &entry, rle_data, &size);
     if (err != ERR_SUCCESS) return err | 0xC0;
+
+    // decompress the RLE'd map
+    _decompress(rle_data, size, data, WIDTH * HEIGHT);
 
     uint8_t line[WIDTH];
 

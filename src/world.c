@@ -16,8 +16,8 @@ TileType SCREEN[HEIGHT][WIDTH];
 
 error world_init(gfx_context *ctx) {
     // load the screen the player starts on
-    world_position.x = 2;
-    world_position.y = 4;
+    world_position.x = WORLD_START_X;
+    world_position.y = WORLD_START_Y;
     zos_err_t err = load_tilemap(ctx, world_position.x, world_position.y, 1, 0);
     if (err != ERR_SUCCESS) return err;
     tilemap_scroll_x(0, SCREEN_WIDTH);

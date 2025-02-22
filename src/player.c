@@ -13,8 +13,8 @@ player_t player;
 error player_init(void)
 {
     player.score = 0;
-    player.point.x = SCREEN_WIDTH / 2;
-    player.point.y = SCREEN_HEIGHT / 2;
+    player.point.x = WORLD_PLAYER_X;
+    player.point.y = WORLD_PLAYER_Y;
 
     gfx_sprite sprite = {
         .tile = 58,
@@ -51,6 +51,7 @@ Edge player_move(void)
         } break;
     }
 
+    // TODO: better tile x/y coordinate system?
     uint8_t tx, ty;
     tx = (x >> 4) - 1;
     if(player.direction.x > 0) tx++;
@@ -59,22 +60,25 @@ Edge player_move(void)
 
     TileType type = screen_get_tile(tx, ty);
 
-    // // type
-    // sprintf(buffer, "%03d", type);
-    // nprint_string(&vctx, buffer, 3, 0, HEIGHT-3);
+#if DEBUG
+    // type
+    sprintf(buffer, "%03d", type);
+    nprint_string(&vctx, buffer, 3, 0, HEIGHT-3);
 
-    // // player x,y
-    // sprintf(buffer, "%03d %03d", player.point.x, player.point.y);
-    // nprint_string(&vctx, buffer, 7, 0, HEIGHT-2);
+    // player x,y
+    sprintf(buffer, "%03d %03d", player.point.x, player.point.y);
+    nprint_string(&vctx, buffer, 7, 0, HEIGHT-2);
 
-    // // screen x,y
-    // sprintf(buffer, "%03d %03d", tx, ty);
-    // nprint_string(&vctx, buffer, 7, 0, HEIGHT-1);
+    // screen x,y
+    sprintf(buffer, "%03d %03d", tx, ty);
+    nprint_string(&vctx, buffer, 7, 0, HEIGHT-1);
+#endif
 
     switch(type) {
         case TILE_UNKNOWN: // fall thru
         case TILE_WATER: // fall thru
         case TILE_WALL:
+            // TODO: only block movement on the direction that has the block
             // obstruction
             return EdgeNone;
         case TILE_CHEST:

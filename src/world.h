@@ -9,16 +9,21 @@
 #define WORLD_HEIGHT 8
 #define SCREEN_TILES (20 * 15)
 
+#define WORLD_START_X  2
+#define WORLD_START_Y  4
+#define WORLD_PLAYER_X (SCREEN_WIDTH / 2)
+#define WORLD_PLAYER_Y (SCREEN_HEIGHT / 4)
+
 typedef void (*transition_callback_t)(uint16_t x, uint16_t y);
 
 extern Vector2_u8 world_position;
 
 typedef enum {
-    TILE_OPEN     = 0,    // player can move on this
-    TILE_WALL     = 1,    // wall, or other obstruction
-    TILE_WATER    = 2,    // water, an obstruction for now
-    TILE_CHEST    = 16,   // interactive chests
-    TILE_UNKNOWN  = 255,  // unknown, assume an obstruction
+    TILE_OPEN = 0,       // player can move on this
+    TILE_WALL = 1,       // wall, or other obstruction
+    TILE_WATER = 2,      // water, an obstruction for now
+    TILE_CHEST = 16,     // interactive chests
+    TILE_UNKNOWN = 255,  // unknown, assume an obstruction
 } TileType;
 
 // extern uint8_t TILEMAP[SCREEN_TILES];
