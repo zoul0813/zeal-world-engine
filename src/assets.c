@@ -65,7 +65,7 @@ void _decompress(uint8_t *data, uint8_t size, uint8_t *buffer, uint8_t buffer_si
             length++;
             // memcpy(&buffer[j], &data[i], length)
             for(k = 0; k < length; k++) {
-                buffer[j] = data[i];
+                buffer[j + k] = data[i + k];
             }
             i += length;
             j += length;
@@ -82,7 +82,7 @@ zos_err_t load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, ui
     if (err != ERR_SUCCESS) return err | 0xC0;
 
     uint16_t size = entry.size;
-    uint8_t *rle_data = &data[WIDTH * HEIGHT];
+    uint8_t *rle_data = &data[(WIDTH * HEIGHT) * 2];
     err = zar_file_read(&zar_file, &entry, rle_data, &size);
     if (err != ERR_SUCCESS) return err | 0xC0;
 
