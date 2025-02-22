@@ -10,7 +10,14 @@
 #define PLAYER_SPEED (2U)
 
 typedef struct {
-        Point point; // (Point)player_t
+        union {
+                Rect rect;
+                struct {
+                        Point point;
+                        Size size;
+                };
+        };
+
         Direction direction;
 
         uint8_t score;

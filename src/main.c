@@ -140,7 +140,7 @@ void clear_tilemap(uint8_t layer, uint8_t x, uint8_t y, uint16_t width, uint16_t
 void update(void) {
     Edge screen_edge = player_move();
     if (screen_edge != EdgeNone) {
-        screen_transition(screen_edge);
+        screen_transition(screen_edge, player.point, player_set_xy);
         sprintf(buffer, "%03d %03d", world_position.x, world_position.y);
         nprint_string(&vctx, buffer, 7, 0, 0);
     }
