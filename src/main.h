@@ -19,27 +19,25 @@
 #define UI_LAYER    1
 #define EMPTY_TILE  0xFF
 
-#define LEFT1   (input1 & BUTTON_LEFT)
-#define RIGHT1  (input1 & BUTTON_RIGHT)
-#define UP1     (input1 & BUTTON_UP)
-#define DOWN1   (input1 & BUTTON_DOWN)
-#define BUTTON1_B  (input1 & BUTTON_B)
-#define BUTTON1_A  (input1 & BUTTON_A)
-#define START1 (input1 & BUTTON_START)
-#define SELECT1 (input1 & BUTTON_SELECT)
+#define LEFT1     (input1 & BUTTON_LEFT)
+#define RIGHT1    (input1 & BUTTON_RIGHT)
+#define UP1       (input1 & BUTTON_UP)
+#define DOWN1     (input1 & BUTTON_DOWN)
+#define BUTTON1_B (input1 & BUTTON_B)
+#define BUTTON1_A (input1 & BUTTON_A)
+#define START1    (input1 & BUTTON_START)
+#define SELECT1   (input1 & BUTTON_SELECT)
 
 typedef uint8_t error;
 
-extern char buffer[20];
+extern uint8_t buffer[WIDTH];
 
 void on_error(zos_err_t err);
 void init(void);
 void deinit(void);
 void reset(void);
 uint8_t input(void);
-// error load_level(uint8_t which);
-void load_screen(uint8_t x, uint8_t y);
-void clear_tilemap(uint8_t layer, uint8_t x, uint8_t y, uint16_t width, uint16_t height);
+void clear_tilemap(uint8_t layer, uint8_t tile, uint8_t x, uint8_t y, uint16_t width, uint16_t height);
 
 void update(void);
 void draw_paused(uint8_t paused);

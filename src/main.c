@@ -1,19 +1,18 @@
 #include <stdio.h>
 #include <stdint.h>
-#include <zar.h>
-#include <zgdk.h>
 #include <zos_errors.h>
-#include <zos_sys.h>
 #include <zos_vfs.h>
+#include <zos_sys.h>
 #include <zos_video.h>
+#include <zgdk.h>
 
 #include "main.h"
 #include "assets.h"
+#include "world.h"
 #include "player.h"
 
-
 gfx_context vctx;
-char buffer[20] = "\0";
+uint8_t buffer[WIDTH];
 
 int main(void) {
     init();
@@ -63,7 +62,7 @@ void init(void) {
     err = gfx_initialize(ZVB_CTRL_VID_MODE_GFX_320_8BIT, &vctx);
     handle_error(err, "init graphics", 1);
 
-    err = load_palette(&vctx);
+    err = load_palette(&vctx, "spritesh.ztp", 0);
     handle_error(err, "load palette", 1);
 
     err = gfx_tileset_add_color_tile(&vctx, EMPTY_TILE, 0);
@@ -72,11 +71,13 @@ void init(void) {
     gfx_tileset_options options = {
         .compression = TILESET_COMP_RLE,
     };
-    err = load_tileset(&vctx, &options);
+    err = load_tileset(&vctx, "spritesh.zts", &options);
     handle_error(err, "load tileset", 1);
 
-    clear_tilemap(0, 0, 0, 80, 40);  // clear all layer0 memory
-    clear_tilemap(1, 0, 0, 80, 40);  // clear all layer1 memory
+    gfx_tileset_add_color_tile(&vctx, 0xFF, 0); // create transparent/empty tile
+
+    clear_tilemap(LAYER0, EMPTY_TILE, 0, 0, 80, 40);  // clear all layer0 memory
+    clear_tilemap(LAYER1, EMPTY_TILE, 0, 0, 80, 40);  // clear all layer1 memory
 
     err = player_init();
     handle_error(err, "init player", 1);
@@ -126,11 +127,11 @@ uint8_t input(void) {
     return 0;
 }
 
-void clear_tilemap(uint8_t layer, uint8_t x, uint8_t y, uint16_t width, uint16_t height) {
+void clear_tilemap(uint8_t layer, uint8_t tile, uint8_t x, uint8_t y, uint16_t width, uint16_t height) {
     uint8_t line[80];
     for (uint16_t row = 0; row < height; row++) {
         for (uint16_t col = 0; col < width; col++) {
-            line[col] = EMPTY_TILE;
+            line[col] = tile;
         }
         gfx_error err = gfx_tilemap_load(&vctx, line, width, layer, x, y + row);
         handle_error(err, "clear tilemap", 1);
