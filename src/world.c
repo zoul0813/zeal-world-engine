@@ -1,3 +1,4 @@
+#include <zgdk/tilemap/scroll.h>
 #include "world.h"
 
 #include "assets.h"

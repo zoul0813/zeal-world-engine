@@ -5,6 +5,7 @@
 #include <zos_sys.h>
 #include <zos_video.h>
 #include <zgdk.h>
+#include <zgdk/tilemap/scroll.h>
 
 #include "main.h"
 #include "assets.h"
@@ -76,8 +77,8 @@ void init(void) {
 
     gfx_tileset_add_color_tile(&vctx, 0xFF, 0); // create transparent/empty tile
 
-    clear_tilemap(LAYER0, EMPTY_TILE, 0, 0, 80, 40);  // clear all layer0 memory
-    clear_tilemap(LAYER1, EMPTY_TILE, 0, 0, 80, 40);  // clear all layer1 memory
+    tilemap_fill(&vctx, LAYER0, EMPTY_TILE, 0, 0, 80, 40);
+    tilemap_fill(&vctx, LAYER1, EMPTY_TILE, 0, 0, 80, 40);
 
     err = player_init();
     handle_error(err, "init player", 1);
@@ -125,17 +126,6 @@ uint8_t input(void) {
     if (SELECT1) return ACTION_QUIT;
 
     return 0;
-}
-
-void clear_tilemap(uint8_t layer, uint8_t tile, uint8_t x, uint8_t y, uint16_t width, uint16_t height) {
-    uint8_t line[80];
-    for (uint16_t row = 0; row < height; row++) {
-        for (uint16_t col = 0; col < width; col++) {
-            line[col] = tile;
-        }
-        gfx_error err = gfx_tilemap_load(&vctx, line, width, layer, x, y + row);
-        handle_error(err, "clear tilemap", 1);
-    }
 }
 
 void update(void) {
