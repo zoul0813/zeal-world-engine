@@ -21,7 +21,7 @@ zos_err_t load_palette(gfx_context* ctx, const char *path, uint8_t from) {
 
     uint16_t size = entry.size;
     err = zar_file_read(&zar_file, &entry, data, &size);
-    if(err != ERR_SUCCESS) return err | 0xC0;
+    if(err != ERR_SUCCESS) return err | 0xD0;
 
     err = gfx_palette_load(ctx, data, size, from);
     if(err != ERR_SUCCESS) return err | 0x80;

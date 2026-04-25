@@ -88,8 +88,13 @@ endif
 ifndef ZGDK_PATH
 	$(error "Failure: ZGDK_PATH variable not found. It must point to ZGDK path.")
 endif
+ifndef COREUTILS_PATH
+	$(error "Failure: COREUTILS_PATH variable not found. It must point to zeal-coreutils path.")
+endif
 
 # EXTRA_CFLAGS = --nostdlib --no-xinit-opt
+EXTRA_CFLAGS += -I$(COREUTILS_PATH)/libsrc/libcore
+EXTRA_LDFLAGS += -k $(COREUTILS_PATH)/lib -l core
 
 GFX_COMPRESSED=1
 GFX_STRIP=128
@@ -118,3 +123,8 @@ all::
 clean-assets:
 
 	rm -rf assets/archive
+
+run:
+	$(ZEAL_NATIVE_BIN) -H bin -r $(ZEAL_NATIVE_ROM) #-t tf.img -e eeprom.img
+
+native: all run
