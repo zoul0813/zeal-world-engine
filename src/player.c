@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <string.h>
 #include <zos_errors.h>
 #include <zvb_gfx.h>
 #include <zvb_sprite.h>
@@ -58,15 +56,15 @@ Edge player_move(void)
 
 #if DEBUG
     // type
-    sprintf(buffer, "%03d", type);
+    format_u16_3(buffer, type);
     nprint_string(&vctx, buffer, 3, 0, HEIGHT-3);
 
     // player x,y
-    sprintf(buffer, "%03d %03d", player.point.x, player.point.y);
+    format_u16_3_pair(buffer, player.point.x, player.point.y);
     nprint_string(&vctx, buffer, 7, 0, HEIGHT-2);
 
     // screen x,y
-    sprintf(buffer, "%03d %03d", tx, ty);
+    format_u16_3_pair(buffer, tx, ty);
     nprint_string(&vctx, buffer, 7, 0, HEIGHT-1);
 #endif
 
@@ -82,7 +80,7 @@ Edge player_move(void)
             world_set_tile(tx, ty, 0); // make it a ground tile
 
             // player score
-            sprintf(buffer, "%03d", player.score);
+            format_u16_3(buffer, player.score);
             nprint_string(&vctx, buffer, 3, WIDTH-3, HEIGHT-1);
             break;
     }

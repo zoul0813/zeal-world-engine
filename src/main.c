@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <stdint.h>
+#include <core.h>
 #include <zos_errors.h>
 #include <zos_vfs.h>
 #include <zos_sys.h>
@@ -13,7 +13,17 @@
 #include "player.h"
 
 gfx_context vctx;
-uint8_t buffer[WIDTH];
+char buffer[WIDTH];
+
+void format_u16_3(char* dest, uint16_t value) {
+    itoa_pad(value, dest, 10, 'A', '0', 3);
+}
+
+void format_u16_3_pair(char* dest, uint16_t a, uint16_t b) {
+    format_u16_3(dest, a);
+    dest[3] = ' ';
+    format_u16_3(dest + 4, b);
+}
 
 int main(void) {
     init();
@@ -34,7 +44,16 @@ quit_game:
 void handle_error(zos_err_t err, const char* message, uint8_t fatal) {
     if (err != ERR_SUCCESS) {
         if (fatal) deinit();
-        printf("\nError[%d] (%02x) failed to %s\n", err, err, message);
+        put_s("\nError[");
+        itoa(err, buffer, 10, 'A');
+        put_s(buffer);
+        put_s("] (");
+        u8tohex(err, buffer, 'A');
+        buffer[2] = '\0';
+        put_s(buffer);
+        put_s(") failed to ");
+        put_s(message);
+        put_c('\n');
         if (fatal) exit(err);
     }
 }
@@ -89,7 +108,7 @@ void init(void) {
     err = world_init(&vctx);
     handle_error(err, "initialize world", 1);
 
-    sprintf(buffer, "%03d %03d", world_position.x, world_position.y);
+    format_u16_3_pair(buffer, world_position.x, world_position.y);
     nprint_string(&vctx, buffer, 7, 0, 0);
 
     gfx_enable_screen(1);
@@ -135,7 +154,7 @@ void update(void) {
     Edge screen_edge = player_move();
     if (screen_edge != EdgeNone) {
         screen_transition(screen_edge, player.point, player_set_xy);
-        sprintf(buffer, "%03d %03d", world_position.x, world_position.y);
+        format_u16_3_pair(buffer, world_position.x, world_position.y);
         nprint_string(&vctx, buffer, 7, 0, 0);
     }
 }

@@ -30,7 +30,10 @@
 
 typedef uint8_t error;
 
-extern uint8_t buffer[WIDTH];
+extern char buffer[WIDTH];
+
+void format_u16_3(char* dest, uint16_t value);
+void format_u16_3_pair(char* dest, uint16_t a, uint16_t b);
 
 void on_error(zos_err_t err);
 void init(void);

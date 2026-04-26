@@ -22,17 +22,20 @@ typedef void (*transition_callback_t)(uint16_t x, uint16_t y);
 
 extern Vector2_u8 world_position;
 
-typedef enum {
+typedef uint8_t TileType;
+
+enum {
     TILE_OPEN = 0,       // player can move on this
     TILE_WALL = 1,       // wall, or other obstruction
     TILE_WATER = 2,      // water, an obstruction for now
     TILE_CHEST = 16,     // interactive chests
     TILE_UNKNOWN = 255,  // unknown, assume an obstruction
-} TileType;
+};
 
 extern TileType SCREEN[ROOM_HEIGHT][ROOM_WIDTH];
 
 error world_init(gfx_context* ctx);
+TileType tile_get_type(uint8_t tile);
 void world_set_tile(const uint8_t x, const uint8_t y, const uint8_t tile);
 
 void screen_load(const Vector2_u8 world, const Edge edge, const Point point, transition_callback_t const callback);

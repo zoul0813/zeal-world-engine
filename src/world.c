@@ -1,5 +1,6 @@
-#include <zgdk/tilemap/scroll.h>
 #include "world.h"
+
+#include <zgdk/tilemap/scroll.h>
 
 #include "assets.h"
 #include "main.h"
@@ -15,7 +16,7 @@ TileType SCREEN[HEIGHT][WIDTH];
 
 /** WORLD FUNCTIONS */
 
-error world_init(gfx_context *ctx) {
+error world_init(gfx_context* ctx) {
     // load the screen the player starts on
     world_position.x = WORLD_START_X;
     world_position.y = WORLD_START_Y;
@@ -25,6 +26,21 @@ error world_init(gfx_context *ctx) {
     return ERR_SUCCESS;
 }
 
+TileType tile_get_type(uint8_t tile) {
+    if ((tile == 1)) {
+        return TILE_WALL;
+    } else if ((tile >= 16) && (tile <= 28)) {
+        return TILE_WATER;
+    } else if ((tile == 14) || (tile == 30)) {
+        return TILE_OPEN;
+    } else if (tile == 58) {
+        return TILE_CHEST;
+    } else if (tile > 0) {
+        return TILE_UNKNOWN;
+    }
+    return TILE_OPEN;
+}
+
 void world_set_tile(uint8_t x, uint8_t y, uint8_t tile) {
     // out of bounds, ignore
     if (x >= WIDTH) return;
@@ -32,7 +48,7 @@ void world_set_tile(uint8_t x, uint8_t y, uint8_t tile) {
 
     // place tile on screen
     gfx_tilemap_place(&vctx, tile, 0, x + WIDTH, y);
-    SCREEN[y][x] = TILE_OPEN;
+    SCREEN[y][x] = tile_get_type(tile);
 
     // place tile into world
     data[(y * WIDTH) + x] = tile;

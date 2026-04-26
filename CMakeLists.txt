@@ -41,6 +41,10 @@ zos_use(zvb)
 find_package(ZVB_SDK REQUIRED)
 target_link_libraries(${target_name} PUBLIC zvb_gfx zvb_sound)
 
+zos_use(coreutils)
+find_package(COREUTILS REQUIRED)
+target_link_libraries(${target_name} PUBLIC core)
+
 zos_use(zgdk)
 find_package(ZGDK REQUIRED)
 target_link_libraries(${target_name} PUBLIC zgdk)
@@ -48,6 +52,10 @@ target_link_libraries(${target_name} PUBLIC zgdk)
 zos_use(zar)
 find_package(ZAR REQUIRED)
 target_link_libraries(${target_name} PUBLIC zar)
+
+target_compile_options(${target_name} PRIVATE
+    $<$<COMPILE_LANGUAGE:C>:--nostdlib>
+)
 
 
 # -------------------------------
