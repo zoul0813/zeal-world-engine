@@ -2,6 +2,7 @@
 #include <zgdk/compress/rle.h>
 
 #include "assets.h"
+#include "tile.h"
 #include "world.h"
 
 gfx_sprite SPRITE_ARENA[MAX_SPRITES];

@@ -43,23 +43,6 @@ error world_init(gfx_context* ctx) {
     return ERR_SUCCESS;
 }
 
-TileType tile_get_type(uint8_t tile) {
-    if ((tile == TILE_ID_WALL)) {
-        return TILE_WALL;
-    } else if ((tile >= TILE_ID_WATER_START) && (tile <= TILE_ID_WATER_END)) {
-        return TILE_WATER;
-    } else if ((tile == TILE_ID_STAIR_A) || (tile == TILE_ID_STAIR_B)) {
-        return TILE_OPEN;
-    } else if (tile == TILE_ID_CHEST) {
-        return TILE_CHEST;
-    } else if (tile == TILE_ID_CHEST_OPEN) {
-        return TILE_CHEST_OPEN;  // blocking?
-    } else if (tile > 0) {
-        return TILE_UNKNOWN;
-    }
-    return TILE_OPEN;
-}
-
 void world_set_tile(uint8_t x, uint8_t y, uint8_t tile) {
     // out of bounds, ignore
     if (x >= WIDTH) return;
