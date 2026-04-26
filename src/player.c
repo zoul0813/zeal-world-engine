@@ -75,7 +75,7 @@ error player_init(void) {
     player.point.y = WORLD_PLAYER_Y;
 
     gfx_sprite sprite = {
-        .tile = 42,
+        .tile = TILE_ID_PLAYER_HEAD,
         .flags = SPRITE_NONE,
         .options = SPRITE_OPTION_32PX,
     };

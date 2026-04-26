@@ -44,15 +44,15 @@ error world_init(gfx_context* ctx) {
 }
 
 TileType tile_get_type(uint8_t tile) {
-    if ((tile == 1)) {
+    if ((tile == TILE_ID_WALL)) {
         return TILE_WALL;
-    } else if ((tile >= 16) && (tile <= 28)) {
+    } else if ((tile >= TILE_ID_WATER_START) && (tile <= TILE_ID_WATER_END)) {
         return TILE_WATER;
-    } else if ((tile == 14) || (tile == 30)) {
+    } else if ((tile == TILE_ID_STAIR_A) || (tile == TILE_ID_STAIR_B)) {
         return TILE_OPEN;
-    } else if (tile == 58) {
+    } else if (tile == TILE_ID_CHEST) {
         return TILE_CHEST;
-    } else if (tile == 59) {
+    } else if (tile == TILE_ID_CHEST_OPEN) {
         return TILE_CHEST_OPEN;  // blocking?
     } else if (tile > 0) {
         return TILE_UNKNOWN;

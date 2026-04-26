@@ -6,7 +6,14 @@
 #define MAX_DATA_KB    16
 #define TILEMAP_OFFSET 0
 
+#define TILE_ID_PLAYER_HEAD 42
+#define TILE_ID_PLAYER_BODY 43
 
+#define TILE_ID_WALL        1
+#define TILE_ID_WATER_START 16
+#define TILE_ID_WATER_END   28
+#define TILE_ID_STAIR_A     14
+#define TILE_ID_STAIR_B     30
 #define TILE_ID_CHEST       58
 #define TILE_ID_CHEST_OPEN  59
 
