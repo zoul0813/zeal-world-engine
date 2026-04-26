@@ -32,6 +32,7 @@ add_executable(${target_name}
     src/assets.c
     src/player.c
     src/tile.c
+    src/ui_map.c
     src/world.c
 )
 

@@ -57,18 +57,22 @@ zos_err_t load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, ui
     decompress_rle(rle_data, size, data);
 
     uint8_t line[ROOM_WIDTH + 1];
+    uint8_t has_unopened_chest = 0;
 
     for (uint8_t row = 0; row < ROOM_HEIGHT; row++) {
         for (uint8_t col = 0; col < ROOM_WIDTH; col++) {
             uint8_t tile = world_get_tile(x, y, data[(row * ROOM_WIDTH) + col]);
             TileType type = tile_get_type(tile);
             SCREEN[row][col] = type;
+            if (type == TILE_CHEST) has_unopened_chest = 1;
             line[col] = tile;
         }
 
         err = gfx_tilemap_load(ctx, line, ROOM_WIDTH, LAYER0, (map_x * WIDTH) + ROOM_OFFSET_X, (map_y * HEIGHT) + row + ROOM_OFFSET_Y);
         if (err != ERR_SUCCESS) return err | 0x80;
     }
+
+    ROOM_HAS_UNOPENED_CHEST = has_unopened_chest;
 
     return ERR_SUCCESS;
 }

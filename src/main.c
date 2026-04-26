@@ -11,6 +11,7 @@
 #include "assets.h"
 #include "world.h"
 #include "player.h"
+#include "ui_map.h"
 
 gfx_context vctx;
 char buffer[WIDTH];
@@ -108,6 +109,9 @@ void init(void) {
     err = world_init(&vctx);
     handle_error(err, "initialize world", 1);
 
+    err = ui_map_init(&vctx, world_position);
+    handle_error(err, "initialize UI map", 1);
+
     format_u16_3_pair(buffer, world_position.x, world_position.y);
     nprint_string(&vctx, buffer, 7, 0, 0);
 
@@ -153,9 +157,12 @@ uint8_t input(void) {
 void update(void) {
     Edge screen_edge = player_move();
     if (screen_edge != EdgeNone) {
-        screen_transition(screen_edge, player.point, player_set_xy);
-        format_u16_3_pair(buffer, world_position.x, world_position.y);
-        nprint_string(&vctx, buffer, 7, 0, 0);
+        uint8_t has_unopened_chest = ROOM_HAS_UNOPENED_CHEST; // current room
+        if (screen_transition(screen_edge, player.point, player_set_xy)) {
+            ui_map_set_position(&vctx, world_position, has_unopened_chest);
+            format_u16_3_pair(buffer, world_position.x, world_position.y);
+            nprint_string(&vctx, buffer, 7, 0, 0);
+        }
     }
 }
 

@@ -14,6 +14,7 @@
 #define WORLD_CHEST_STATE_SIZE (WORLD_ROOM_COUNT / 8)
 
 Vector2_u8 world_position;
+uint8_t ROOM_HAS_UNOPENED_CHEST;
 TileType SCREEN[HEIGHT][WIDTH];
 static uint8_t CHEST_OPEN[WORLD_CHEST_STATE_SIZE];
 
@@ -53,6 +54,7 @@ void world_set_tile(uint8_t x, uint8_t y, uint8_t tile) {
     SCREEN[y][x] = tile_get_type(tile);
     if (tile == TILE_ID_CHEST_OPEN) {
         world_set_chest_open(world_position.x, world_position.y);
+        ROOM_HAS_UNOPENED_CHEST = 0;
     }
 
     // place tile into world

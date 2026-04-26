@@ -22,6 +22,7 @@
 typedef void (*transition_callback_t)(uint16_t x, uint16_t y);
 
 extern Vector2_u8 world_position;
+extern uint8_t ROOM_HAS_UNOPENED_CHEST;
 
 extern TileType SCREEN[ROOM_HEIGHT][ROOM_WIDTH];
 
