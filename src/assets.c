@@ -69,7 +69,7 @@ zos_err_t load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, ui
                 type = TILE_WATER;
             } else if ((tile == 14) || (tile == 30)) {
                 type = TILE_OPEN;
-            } else if (tile == 43) {
+            } else if (tile == 58) {
                 type = TILE_CHEST;
             } else if (tile > 0) {
                 type = TILE_UNKNOWN;

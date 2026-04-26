@@ -17,7 +17,7 @@ error player_init(void)
     player.point.y = WORLD_PLAYER_Y;
 
     gfx_sprite sprite = {
-        .tile = 58,
+        .tile = 43,
         .flags = SPRITE_NONE,
     };
     player.sprite_body = sprites_register(sprite);
