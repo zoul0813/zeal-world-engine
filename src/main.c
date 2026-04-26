@@ -80,6 +80,9 @@ void init(void) {
     tilemap_fill(&vctx, LAYER0, EMPTY_TILE, 0, 0, 80, 40);
     tilemap_fill(&vctx, LAYER1, EMPTY_TILE, 0, 0, 80, 40);
 
+    err = gfx_sprite_render_array(&vctx, 0, SPRITE_ARENA, MAX_SPRITES);
+    handle_error(err, "clear sprites", 1);
+
     err = player_init();
     handle_error(err, "init player", 1);
 

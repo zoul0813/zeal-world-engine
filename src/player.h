@@ -22,9 +22,7 @@ typedef struct {
 
         uint8_t score;
 
-        // sprites
-        gfx_sprite* sprite_head;
-        gfx_sprite* sprite_body;
+        gfx_sprite* sprite;
 } player_t;
 
 extern player_t player;

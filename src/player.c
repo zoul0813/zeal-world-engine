@@ -17,13 +17,11 @@ error player_init(void)
     player.point.y = WORLD_PLAYER_Y;
 
     gfx_sprite sprite = {
-        .tile = 43,
+        .tile = 42,
         .flags = SPRITE_NONE,
+        .options = SPRITE_OPTION_32PX,
     };
-    player.sprite_body = sprites_register(sprite);
-
-    sprite.tile = 42;
-    player.sprite_head = sprites_register(sprite);
+    player.sprite = sprites_register(sprite);
 
     return GFX_SUCCESS;
 }
@@ -42,12 +40,10 @@ Edge player_move(void)
 
     switch (player.direction.x) {
         case DIRECTION_LEFT: {
-            player.sprite_head->flags = SPRITE_FLIP_X;
-            player.sprite_body->flags = SPRITE_FLIP_X;
+            player.sprite->flags = SPRITE_FLIP_X;
         } break;
         case DIRECTION_RIGHT: {
-            player.sprite_head->flags = SPRITE_NONE;
-            player.sprite_body->flags = SPRITE_NONE;
+            player.sprite->flags = SPRITE_NONE;
         } break;
     }
 
@@ -104,8 +100,6 @@ Edge player_move(void)
 void player_set_xy(uint16_t x, uint16_t y) {
     player.point.x = x;
     player.point.y = y;
-    player.sprite_body->x = x;
-    player.sprite_head->x = x;
-    player.sprite_body->y = y;
-    player.sprite_head->y = y - SPRITE_HEIGHT;
+    player.sprite->x = x;
+    player.sprite->y = y - SPRITE_HEIGHT;
 }
