@@ -1,15 +1,16 @@
+#include "player.h"
+
 #include <zos_errors.h>
 #include <zvb_gfx.h>
 #include <zvb_sprite.h>
 
-#include "player.h"
 #include "main.h"
+#include "assets.h"
 #include "world.h"
 
 player_t player;
 
-error player_init(void)
-{
+error player_init(void) {
     player.score = 0;
     player.point.x = WORLD_PLAYER_X;
     player.point.y = WORLD_PLAYER_Y;
@@ -24,17 +25,15 @@ error player_init(void)
     return GFX_SUCCESS;
 }
 
-error player_deinit(void)
-{
+error player_deinit(void) {
     return ERR_SUCCESS;
 }
 
-Edge player_move(void)
-{
+Edge player_move(void) {
     uint16_t x = player.point.x;
     uint16_t y = player.point.y;
-    x          += (player.direction.x * PLAYER_SPEED);
-    y          += (player.direction.y * PLAYER_SPEED);
+    x += (player.direction.x * PLAYER_SPEED);
+    y += (player.direction.y * PLAYER_SPEED);
 
     switch (player.direction.x) {
         case DIRECTION_LEFT: {
@@ -48,50 +47,53 @@ Edge player_move(void)
     // TODO: better tile x/y coordinate system?
     uint8_t tx, ty;
     tx = (x >> 4) - 1;
-    if(player.direction.x > 0) tx++;
+    if (player.direction.x > 0) tx++;
     ty = (y >> 4) - 1;
-    if(player.direction.y > 0) ty++;
+    if (player.direction.y > 0) ty++;
 
     TileType type = screen_get_tile(tx, ty);
 
 #if DEBUG
     // type
     format_u16_3(buffer, type);
-    nprint_string(&vctx, buffer, 3, 0, HEIGHT-3);
+    nprint_string(&vctx, buffer, 3, 0, HEIGHT - 3);
 
     // player x,y
     format_u16_3_pair(buffer, player.point.x, player.point.y);
-    nprint_string(&vctx, buffer, 7, 0, HEIGHT-2);
+    nprint_string(&vctx, buffer, 7, 0, HEIGHT - 2);
 
     // screen x,y
     format_u16_3_pair(buffer, tx, ty);
-    nprint_string(&vctx, buffer, 7, 0, HEIGHT-1);
+    nprint_string(&vctx, buffer, 7, 0, HEIGHT - 1);
 #endif
 
-    switch(type) {
-        case TILE_UNKNOWN: // fall thru
-        case TILE_WATER: // fall thru
+    switch (type) {
+        case TILE_UNKNOWN:     // fall thru
+        case TILE_WATER:       // fall thru
+        case TILE_CHEST_OPEN:  // fall thru
         case TILE_WALL:
-            // TODO: only block movement on the direction that has the block
-            // obstruction
+            // TODO: only block movement on the direction that has the block obstruction
             return EdgeNone;
         case TILE_CHEST:
             player.score++;
-            world_set_tile(tx, ty, 0); // make it a ground tile
+            world_set_tile(tx, ty, TILE_ID_CHEST_OPEN);  // make it a ground tile
 
             // player score
             format_u16_3(buffer, player.score);
-            nprint_string(&vctx, buffer, 3, WIDTH-3, HEIGHT-1);
+            nprint_string(&vctx, buffer, 3, WIDTH - 3, HEIGHT - 1);
             break;
     }
 
-
     player_set_xy(x, y);
 
-    if(x < SPRITE_WIDTH) return EdgeLeft;
-    else if(x > SCREEN_WIDTH) return EdgeRight;
-    if(y < SPRITE_HEIGHT) return EdgeTop;
-    else if(y > SCREEN_HEIGHT) return EdgeBottom;
+    if (x < SPRITE_WIDTH)
+        return EdgeLeft;
+    else if (x > SCREEN_WIDTH)
+        return EdgeRight;
+    if (y < SPRITE_HEIGHT)
+        return EdgeTop;
+    else if (y > SCREEN_HEIGHT)
+        return EdgeBottom;
     return EdgeNone;
 }
 

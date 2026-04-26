@@ -6,6 +6,10 @@
 #define MAX_DATA_KB    16
 #define TILEMAP_OFFSET 0
 
+
+#define TILE_ID_CHEST       58
+#define TILE_ID_CHEST_OPEN  59
+
 extern gfx_sprite SPRITE_ARENA[MAX_SPRITES];
 extern uint8_t data[MAX_DATA_KB * 1024];
 extern zar_file_t zar_file;

@@ -10,11 +10,28 @@
  */
 
 #define SLIDE_SPEED 4
+#define WORLD_ROOM_COUNT (WORLD_WIDTH * WORLD_HEIGHT)
+#define WORLD_CHEST_STATE_SIZE (WORLD_ROOM_COUNT / 8)
 
 Vector2_u8 world_position;
 TileType SCREEN[HEIGHT][WIDTH];
+static uint8_t CHEST_OPEN[WORLD_CHEST_STATE_SIZE];
 
 /** WORLD FUNCTIONS */
+
+static uint8_t world_room_index(uint8_t x, uint8_t y) {
+    return (y * WORLD_WIDTH) + x;
+}
+
+static uint8_t world_chest_open(uint8_t x, uint8_t y) {
+    uint8_t room = world_room_index(x, y);
+    return CHEST_OPEN[room >> 3] & (1 << (room & 7));
+}
+
+static void world_set_chest_open(uint8_t x, uint8_t y) {
+    uint8_t room = world_room_index(x, y);
+    CHEST_OPEN[room >> 3] |= (1 << (room & 7));
+}
 
 error world_init(gfx_context* ctx) {
     // load the screen the player starts on
@@ -35,6 +52,8 @@ TileType tile_get_type(uint8_t tile) {
         return TILE_OPEN;
     } else if (tile == 58) {
         return TILE_CHEST;
+    } else if (tile == 59) {
+        return TILE_CHEST_OPEN;  // blocking?
     } else if (tile > 0) {
         return TILE_UNKNOWN;
     }
@@ -49,9 +68,19 @@ void world_set_tile(uint8_t x, uint8_t y, uint8_t tile) {
     // place tile on screen
     gfx_tilemap_place(&vctx, tile, 0, x + WIDTH, y);
     SCREEN[y][x] = tile_get_type(tile);
+    if (tile == TILE_ID_CHEST_OPEN) {
+        world_set_chest_open(world_position.x, world_position.y);
+    }
 
     // place tile into world
     data[(y * WIDTH) + x] = tile;
+}
+
+uint8_t world_get_tile(uint8_t world_x, uint8_t world_y, uint8_t tile) {
+    if ((tile == TILE_ID_CHEST) && world_chest_open(world_x, world_y)) {
+        return TILE_ID_CHEST_OPEN;
+    }
+    return tile;
 }
 
 /** SCREEN FUNCTIONS */
