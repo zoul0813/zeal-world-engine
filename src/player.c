@@ -34,6 +34,7 @@ Edge player_move(void) {
     uint16_t y = player.point.y;
     x += (player.direction.x * PLAYER_SPEED);
     y += (player.direction.y * PLAYER_SPEED);
+    Edge edge = EdgeNone;
 
     switch (player.direction.x) {
         case DIRECTION_LEFT: {
@@ -50,6 +51,26 @@ Edge player_move(void) {
     if (player.direction.x > 0) tx++;
     ty = (y >> 4) - 1;
     if (player.direction.y > 0) ty++;
+
+    if ((player.direction.x < 0) && (x < SPRITE_WIDTH)) {
+        x = SPRITE_WIDTH;
+        edge = EdgeLeft;
+    } else if ((player.direction.x > 0) && (x >= SCREEN_WIDTH)) {
+        x = SCREEN_WIDTH;
+        edge = EdgeRight;
+    }
+    if ((player.direction.y < 0) && (y < SPRITE_HEIGHT)) {
+        y = SPRITE_HEIGHT;
+        edge = EdgeTop;
+    } else if ((player.direction.y > 0) && (y >= SCREEN_HEIGHT)) {
+        y = SCREEN_HEIGHT;
+        edge = EdgeBottom;
+    }
+
+    if (edge != EdgeNone) {
+        player_set_xy(x, y);
+        return edge;
+    }
 
     TileType type = screen_get_tile(tx, ty);
 
@@ -86,14 +107,6 @@ Edge player_move(void) {
 
     player_set_xy(x, y);
 
-    if (x < SPRITE_WIDTH)
-        return EdgeLeft;
-    else if (x > SCREEN_WIDTH)
-        return EdgeRight;
-    if (y < SPRITE_HEIGHT)
-        return EdgeTop;
-    else if (y > SCREEN_HEIGHT)
-        return EdgeBottom;
     return EdgeNone;
 }
 

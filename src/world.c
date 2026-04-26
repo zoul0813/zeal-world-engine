@@ -234,9 +234,9 @@ void screen_load(const Vector2_u8 world, const Edge edge, const Point point, tra
 }
 
 TileType screen_get_tile(const uint8_t x, const uint8_t y) {
-    // out of bounds, assume TILE_OPEN
-    if (x >= WIDTH) return TILE_OPEN;
-    if (y >= HEIGHT) return TILE_OPEN;
+    // out of bounds, assume blocked
+    if (x >= WIDTH) return TILE_UNKNOWN;
+    if (y >= HEIGHT) return TILE_UNKNOWN;
     return SCREEN[y][x];
 }
 
