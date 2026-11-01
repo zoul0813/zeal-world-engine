@@ -2,8 +2,6 @@
 
 #include <zgdk/tilemap/scroll.h>
 
-#include "assets.h"
-
 /**
  * It is assumed the viewport is always the screen 0,1 on the tilemap
  */
@@ -14,9 +12,11 @@
 
 Vector2_u8 world_position;
 uint8_t ROOM_HAS_UNOPENED_CHEST;
-TileType SCREEN[HEIGHT][WIDTH];
+static uint8_t room_tiles[ROOM_WIDTH * ROOM_HEIGHT];
+static Tilemap room;
 static uint8_t CHEST_OPEN[WORLD_CHEST_STATE_SIZE];
 static gfx_context* world_ctx;
+static room_loader_t load_room;
 
 /** WORLD FUNCTIONS */
 
@@ -24,7 +24,8 @@ static uint8_t world_room_index(uint8_t x, uint8_t y) {
     return (y * WORLD_WIDTH) + x;
 }
 
-static uint8_t world_chest_open(uint8_t x, uint8_t y) {
+uint8_t world_chest_open(uint8_t x, uint8_t y) {
+    if (x >= WORLD_WIDTH || y >= WORLD_HEIGHT) return 0;
     uint8_t room = world_room_index(x, y);
     return CHEST_OPEN[room >> 3] & (1 << (room & 7));
 }
@@ -34,42 +35,27 @@ static void world_set_chest_open(uint8_t x, uint8_t y) {
     CHEST_OPEN[room >> 3] |= (1 << (room & 7));
 }
 
-zos_err_t world_init(gfx_context* ctx, Vector2_u8 start) {
-    if (ctx == NULL || start.x >= WORLD_WIDTH || start.y >= WORLD_HEIGHT) {
+zos_err_t world_init(gfx_context* ctx, Vector2_u8 start, room_loader_t loader) {
+    if (ctx == NULL || loader == NULL || start.x >= WORLD_WIDTH || start.y >= WORLD_HEIGHT) {
         return ERR_INVALID_PARAMETER;
     }
 
     // load the starting room supplied by the game
     world_ctx = ctx;
+    load_room = loader;
+    rect_set(room.rect, ROOM_OFFSET_X, ROOM_OFFSET_Y, ROOM_WIDTH, ROOM_HEIGHT);
+    zos_err_t err = tilemap_register(&room, room_tiles);
+    if (err != ERR_SUCCESS) return err;
     world_position = start;
-    zos_err_t err = load_tilemap(ctx, world_position.x, world_position.y, 1, 0);
+    err = load_room(ctx, world_position.x, world_position.y, 1, 0);
     if (err != ERR_SUCCESS) return err;
     tilemap_scroll_x(0, SCREEN_WIDTH);
     return ERR_SUCCESS;
 }
 
-void world_set_tile(uint8_t x, uint8_t y, uint8_t tile) {
-    // out of bounds, ignore
-    if (x >= WIDTH) return;
-    if (y >= HEIGHT) return;
-
-    // place tile on screen
-    gfx_tilemap_place(world_ctx, tile, 0, x + WIDTH, y);
-    SCREEN[y][x] = tile_get_type(tile);
-    if (tile == TILE_ID_CHEST_OPEN) {
-        world_set_chest_open(world_position.x, world_position.y);
-        ROOM_HAS_UNOPENED_CHEST = 0;
-    }
-
-    // place tile into world
-    data[(y * WIDTH) + x] = tile;
-}
-
-uint8_t world_get_tile(uint8_t world_x, uint8_t world_y, uint8_t tile) {
-    if ((tile == TILE_ID_CHEST) && world_chest_open(world_x, world_y)) {
-        return TILE_ID_CHEST_OPEN;
-    }
-    return tile;
+void world_open_chest(void) {
+    world_set_chest_open(world_position.x, world_position.y);
+    ROOM_HAS_UNOPENED_CHEST = 0;
 }
 
 /** SCREEN FUNCTIONS */
@@ -173,7 +159,7 @@ void screen_slide(Point tilemap, const Edge edge, const Point point, const trans
     }
 }
 
-void screen_load(const Vector2_u8 world, const Edge edge, const Point point, transition_callback_t const callback) {
+zos_err_t screen_load(const Vector2_u8 world, const Edge edge, const Point point, transition_callback_t const callback) {
     Vector2_u8 old_world = {
         .x = world_position.x,
         .y = world_position.y,
@@ -184,35 +170,42 @@ void screen_load(const Vector2_u8 world, const Edge edge, const Point point, tra
         .y = 0,
     };
 
+    zos_err_t err;
     switch (edge) {
         case EdgeLeft:
-            load_tilemap(world_ctx, world.x, world.y, 0, 0);
+            err = load_room(world_ctx, world.x, world.y, 0, 0);
+            if (err != ERR_SUCCESS) return err;
             break;
         case EdgeRight:
-            load_tilemap(world_ctx, world.x, world.y, 2, 0);
+            err = load_room(world_ctx, world.x, world.y, 2, 0);
+            if (err != ERR_SUCCESS) return err;
             break;
         case EdgeTop:
             // load the old map beneath
-            load_tilemap(world_ctx, old_world.x, old_world.y, 1, 1);
+            err = load_room(world_ctx, old_world.x, old_world.y, 1, 1);
+            if (err != ERR_SUCCESS) return err;
             // jump to old map
             gfx_wait_vblank(world_ctx);
             tilemap_scroll(0, SCREEN_WIDTH, SCREEN_HEIGHT);
             gfx_wait_end_vblank(world_ctx);
 
             // load the new map above
-            load_tilemap(world_ctx, world.x, world.y, 1, 0);
+            err = load_room(world_ctx, world.x, world.y, 1, 0);
+            if (err != ERR_SUCCESS) return err;
 
             tilemap.y = SCREEN_HEIGHT;
             break;
         case EdgeBottom:
-            load_tilemap(world_ctx, world.x, world.y, 1, 1);
+            err = load_room(world_ctx, world.x, world.y, 1, 1);
+            if (err != ERR_SUCCESS) return err;
             break;
     }
 
     screen_slide(tilemap, edge, point, callback);
 
     // load the current screen into 1,0 and jump to it
-    load_tilemap(world_ctx, world.x, world.y, 1, 0);
+    err = load_room(world_ctx, world.x, world.y, 1, 0);
+    if (err != ERR_SUCCESS) return err;
     gfx_wait_vblank(world_ctx);
     tilemap_scroll(0, SCREEN_WIDTH, 0);
     gfx_wait_end_vblank(world_ctx);
@@ -220,13 +213,7 @@ void screen_load(const Vector2_u8 world, const Edge edge, const Point point, tra
     // update to the latest
     world_position.x = world.x;
     world_position.y = world.y;
-}
-
-TileType screen_get_tile(const uint8_t x, const uint8_t y) {
-    // out of bounds, assume blocked
-    if (x >= WIDTH) return TILE_UNKNOWN;
-    if (y >= HEIGHT) return TILE_UNKNOWN;
-    return SCREEN[y][x];
+    return ERR_SUCCESS;
 }
 
 /**
@@ -236,9 +223,9 @@ TileType screen_get_tile(const uint8_t x, const uint8_t y) {
  * the mext screen into view, if applicable.
  *
  * @param edge The edge of the current screen the subject is exiting from
- * @returns 1 if transition occurred, 0 is no transition occurred
+ * @returns 1 after a transition, 0 at a boundary, or a negated load error
  */
-uint8_t screen_transition(const Edge edge, const Point point, const transition_callback_t callback) {
+int16_t screen_transition(const Edge edge, const Point point, const transition_callback_t callback) {
     uint8_t transition = 0;
 
     Vector2_u8 new_world = {
@@ -286,7 +273,8 @@ uint8_t screen_transition(const Edge edge, const Point point, const transition_c
     }
 
     if (transition) {
-        screen_load(new_world, edge, point, callback);
+        zos_err_t err = screen_load(new_world, edge, point, callback);
+        if (err != ERR_SUCCESS) return -(int16_t)err;
         return 1;
     }
 

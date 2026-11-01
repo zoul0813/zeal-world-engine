@@ -17,20 +17,25 @@ Then open a terminal, go to the source directory and type the following commands
 
 ## Source layout
 
-* `src/engine/` contains the reusable world code: screen layout, room loading,
-  transitions, tile classification, persistent room contents, and the minimap.
-* `src/main.c`, `src/main.h`, `src/player.c`, `src/player.h`, and `src/assets.h`
-  implement the test game: input, player movement, sprite allocation, scoring,
-  and the starting room and player position.
+* `src/engine/` contains screen layout, room transitions, the registered ZGDK
+  `Tilemap`, persistent room contents, and the minimap.
+* The files directly in `src/` implement the test game: input, player movement,
+  scoring, asset loading, graphics uploads, and tile-ID classification.
 
-The game supplies its graphics context and starting room to `world_init()`.
+The game supplies its graphics context, starting room, and room-loader callback
+to `world_init()`. The engine chooses which room to load and where to stage it
+for scrolling. The game callback reads its archive, decompresses the map, uploads
+its graphics, populates the registered map with `tilemap_set_xy()`, and reports
+`ROOM_HAS_UNOPENED_CHEST`. Gameplay reads the map with ZGDK's `tilemap_get_xy()`;
+the engine has no separate screen tile array or archive dependency.
+
 Transitions report positions through a callback without depending on the player
-module. Room content state (currently opened chests) belongs to the engine;
-deciding when to open a chest and awarding its score belongs to the game.
+module. Load errors propagate back to the game, which exits through its error
+handler. Room content state (currently one opened-chest bit per room) belongs to
+the engine; the game chooses the graphics and score for opening a chest. The
+minimap generates its own UI tiles inside the engine.
 
-The engine currently uses the bundled world's tile IDs and fixed screen/world
-dimensions, defined in its headers. This separation identifies the reusable code
-without introducing a configurable engine API yet.
+Screen/world dimensions are still fixed in the engine headers.
 
 ## Resources
 

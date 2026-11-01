@@ -6,6 +6,7 @@
 
 #include "main.h"
 #include "assets.h"
+#include "tile.h"
 #include "engine/world.h"
 
 player_t player;
@@ -18,7 +19,8 @@ static uint8_t player_tile_y(uint16_t y) {
     return (uint8_t)((y >> 4) - 1);
 }
 
-static uint8_t player_type_blocks(TileType type) {
+static uint8_t player_type_blocks(int16_t type) {
+    if (type < 0) return 1;
     switch (type) {
         case TILE_UNKNOWN:     // fall thru
         case TILE_WATER:       // fall thru
@@ -36,19 +38,19 @@ static uint8_t player_body_blocks(uint16_t x, uint16_t y) {
     uint8_t tx1 = player_tile_x(x + SPRITE_WIDTH - 1);
     uint8_t ty1 = player_tile_y(y + SPRITE_HEIGHT - 1);
 
-    if (player_type_blocks(screen_get_tile(tx0, ty0))) return 1;
-    if (player_type_blocks(screen_get_tile(tx1, ty0))) return 1;
-    if (player_type_blocks(screen_get_tile(tx0, ty1))) return 1;
-    if (player_type_blocks(screen_get_tile(tx1, ty1))) return 1;
+    if (player_type_blocks(tilemap_get_xy(tx0, ty0))) return 1;
+    if (player_type_blocks(tilemap_get_xy(tx1, ty0))) return 1;
+    if (player_type_blocks(tilemap_get_xy(tx0, ty1))) return 1;
+    if (player_type_blocks(tilemap_get_xy(tx1, ty1))) return 1;
 
     return 0;
 }
 
 static uint8_t player_open_chest(uint8_t tx, uint8_t ty) {
-    if (screen_get_tile(tx, ty) != TILE_CHEST) return 0;
+    if (tilemap_get_xy(tx, ty) != TILE_CHEST) return 0;
 
     player.score++;
-    world_set_tile(tx, ty, TILE_ID_CHEST_OPEN);
+    room_set_tile(&vctx, tx, ty, TILE_ID_CHEST_OPEN);
 
     // player score
     format_u16_3(buffer, player.score);
@@ -129,7 +131,7 @@ Edge player_move(void) {
     uint8_t ty = player_tile_y(ny);
 
     // type
-    format_u16_3(buffer, screen_get_tile(tx, ty));
+    format_u16_3(buffer, tilemap_get_xy(tx, ty));
     nprint_string(&vctx, buffer, 3, 0, HEIGHT - 3);
 
     // player x,y

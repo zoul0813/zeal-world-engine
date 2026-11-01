@@ -3,11 +3,11 @@
 
 #include "assets.h"
 #include "tile.h"
-#include "world.h"
+#include "engine/world.h"
 
-zar_file_t zar_file;
-zar_file_entry_t entry;
-uint8_t data[MAX_DATA_KB * 1024];
+static zar_file_t zar_file;
+static zar_file_entry_t entry;
+static uint8_t data[MAX_DATA_KB * 1024];
 
 zos_err_t load_asset_file(const char *path) {
     zos_err_t err = zar_file_open(path, &zar_file);
@@ -41,9 +41,6 @@ zos_err_t load_tileset(gfx_context* ctx, const char *path, gfx_tileset_options* 
 }
 
 zos_err_t load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, uint8_t map_y) {
-    (void)x;
-    (void)y;
-
     uint8_t offset = (y * WORLD_WIDTH) + x;
     zos_err_t err = zar_file_entry_from_index(&zar_file, TILEMAP_OFFSET + offset, &entry);
     if (err != ERR_SUCCESS) return err | 0xC0;
@@ -60,9 +57,12 @@ zos_err_t load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, ui
 
     for (uint8_t row = 0; row < ROOM_HEIGHT; row++) {
         for (uint8_t col = 0; col < ROOM_WIDTH; col++) {
-            uint8_t tile = world_get_tile(x, y, data[(row * ROOM_WIDTH) + col]);
+            uint8_t tile = data[(row * ROOM_WIDTH) + col];
+            if (tile == TILE_ID_CHEST && world_chest_open(x, y)) {
+                tile = TILE_ID_CHEST_OPEN;
+            }
             TileType type = tile_get_type(tile);
-            SCREEN[row][col] = type;
+            tilemap_set_xy(col, row, type);
             if (type == TILE_CHEST) has_unopened_chest = 1;
             line[col] = tile;
         }
@@ -74,4 +74,12 @@ zos_err_t load_tilemap(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t map_x, ui
     ROOM_HAS_UNOPENED_CHEST = has_unopened_chest;
 
     return ERR_SUCCESS;
+}
+
+void room_set_tile(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t tile) {
+    if (x >= ROOM_WIDTH || y >= ROOM_HEIGHT) return;
+
+    gfx_tilemap_place(ctx, tile, LEVEL_LAYER, x + WIDTH + ROOM_OFFSET_X, y + ROOM_OFFSET_Y);
+    tilemap_set_xy(x, y, tile_get_type(tile));
+    if (tile == TILE_ID_CHEST_OPEN) world_open_chest();
 }

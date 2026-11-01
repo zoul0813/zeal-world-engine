@@ -29,9 +29,9 @@ project(${target_name} C ASM)
 # -------------------------------
 add_executable(${target_name}
     src/main.c
-    src/engine/assets.c
+    src/assets.c
     src/player.c
-    src/engine/tile.c
+    src/tile.c
     src/engine/ui_map.c
     src/engine/world.c
 )

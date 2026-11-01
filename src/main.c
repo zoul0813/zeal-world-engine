@@ -9,7 +9,6 @@
 
 #include "main.h"
 #include "assets.h"
-#include "engine/assets.h"
 #include "engine/world.h"
 #include "player.h"
 #include "engine/ui_map.h"
@@ -109,7 +108,7 @@ void init(void) {
     handle_error(err, "init player", 1);
 
     Vector2_u8 start = { .x = WORLD_START_X, .y = WORLD_START_Y };
-    err = world_init(&vctx, start);
+    err = world_init(&vctx, start, load_tilemap);
     handle_error(err, "initialize world", 1);
 
     err = ui_map_init(&vctx, world_position);
@@ -161,7 +160,10 @@ void update(void) {
     Edge screen_edge = player_move();
     if (screen_edge != EdgeNone) {
         uint8_t has_unopened_chest = ROOM_HAS_UNOPENED_CHEST; // current room
-        if (screen_transition(screen_edge, player.point, player_set_xy)) {
+        int16_t transitioned = screen_transition(screen_edge, player.point, player_set_xy);
+        if (transitioned < 0) {
+            handle_error((zos_err_t)-transitioned, "load room", 1);
+        } else if (transitioned) {
             ui_map_set_position(&vctx, world_position, has_unopened_chest);
             format_u16_3_pair(buffer, world_position.x, world_position.y);
             nprint_string(&vctx, buffer, 7, 0, 0);
