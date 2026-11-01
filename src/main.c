@@ -11,7 +11,7 @@
 #include "assets.h"
 #include "engine/world.h"
 #include "player.h"
-#include "engine/ui_map.h"
+#include "engine/minimap.h"
 
 gfx_context vctx;
 gfx_sprite SPRITE_ARENA[MAX_SPRITES];
@@ -111,8 +111,8 @@ void init(void) {
     err = world_init(&vctx, start, load_tilemap);
     handle_error(err, "initialize world", 1);
 
-    err = ui_map_init(&vctx, world_position);
-    handle_error(err, "initialize UI map", 1);
+    err = minimap_init(&vctx, world_position);
+    handle_error(err, "initialize minimap", 1);
 
     format_u16_3_pair(buffer, world_position.x, world_position.y);
     nprint_string(&vctx, buffer, 7, 0, 0);
@@ -159,12 +159,12 @@ uint8_t input(void) {
 void update(void) {
     Edge screen_edge = player_move();
     if (screen_edge != EdgeNone) {
-        uint8_t has_unopened_chest = ROOM_HAS_UNOPENED_CHEST; // current room
+        uint8_t previous_is_special = ROOM_HAS_UNOPENED_CHEST; // the game marks rooms with unopened chests
         int16_t transitioned = screen_transition(screen_edge, player.point, player_set_xy);
         if (transitioned < 0) {
             handle_error((zos_err_t)-transitioned, "load room", 1);
         } else if (transitioned) {
-            ui_map_set_position(&vctx, world_position, has_unopened_chest);
+            minimap_set_position(&vctx, world_position, previous_is_special);
             format_u16_3_pair(buffer, world_position.x, world_position.y);
             nprint_string(&vctx, buffer, 7, 0, 0);
         }

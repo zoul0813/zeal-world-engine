@@ -35,6 +35,10 @@ handler. Room content state (currently one opened-chest bit per room) belongs to
 the engine; the game chooses the graphics and score for opening a chest. The
 minimap generates its own UI tiles inside the engine.
 
+`engine/minimap.c` displays unvisited, visited, and special rooms, with a
+separate highlight for the current room. The game supplies the special flag;
+the test game uses it to mark rooms with unopened chests.
+
 Screen/world dimensions are still fixed in the engine headers.
 
 ## Resources
