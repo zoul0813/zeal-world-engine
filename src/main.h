@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <zos_errors.h>
 #include <zvb_gfx.h>
-#include "engine/screen.h"
+#include "screen.h"
 
 #ifndef MAIN_H
 #define MAIN_H

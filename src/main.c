@@ -9,9 +9,11 @@
 
 #include "main.h"
 #include "assets.h"
-#include "engine/world.h"
+#include "world/world.h"
+#include "world/transitions.h"
+#include "chests.h"
 #include "player.h"
-#include "engine/minimap.h"
+#include "minimap/minimap.h"
 
 gfx_context vctx;
 gfx_sprite SPRITE_ARENA[MAX_SPRITES];

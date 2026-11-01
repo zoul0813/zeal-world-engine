@@ -11,6 +11,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 # -------------------------------
@@ -30,10 +31,9 @@ project(${target_name} C ASM)
 add_executable(${target_name}
     src/main.c
     src/assets.c
+    src/chests.c
     src/player.c
     src/tile.c
-    src/engine/minimap.c
-    src/engine/world.c
 )
 
 # # -------------------------------
@@ -54,6 +54,15 @@ target_link_libraries(${target_name} PUBLIC zgdk)
 zos_use(zar)
 find_package(ZAR REQUIRED)
 target_link_libraries(${target_name} PUBLIC zar)
+
+# Build the reusable engine separately, following the coreutils library layout.
+add_subdirectory(libsrc)
+add_dependencies(${target_name} world_engine)
+target_include_directories(${target_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libsrc)
+target_link_options(${target_name} PRIVATE
+    "SHELL:-k ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"
+    "SHELL:-l world.lib"
+)
 
 target_compile_options(${target_name} PRIVATE
     $<$<COMPILE_LANGUAGE:C>:--nostdlib>

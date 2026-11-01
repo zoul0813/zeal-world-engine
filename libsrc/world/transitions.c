@@ -1,66 +1,12 @@
-#include "world.h"
+#include "transitions.h"
+#include "internal.h"
 
 #include <zgdk/tilemap/scroll.h>
 
-/**
- * It is assumed the viewport is always the screen 0,1 on the tilemap
- */
-
+/* The active viewport is tilemap screen (1, 0). */
 #define SLIDE_SPEED 4
-#define WORLD_ROOM_COUNT (WORLD_WIDTH * WORLD_HEIGHT)
-#define WORLD_CHEST_STATE_SIZE (WORLD_ROOM_COUNT / 8)
 
-Vector2_u8 world_position;
-uint8_t ROOM_HAS_UNOPENED_CHEST;
-static uint8_t room_tiles[ROOM_WIDTH * ROOM_HEIGHT];
-static Tilemap room;
-static uint8_t CHEST_OPEN[WORLD_CHEST_STATE_SIZE];
-static gfx_context* world_ctx;
-static room_loader_t load_room;
-
-/** WORLD FUNCTIONS */
-
-static uint8_t world_room_index(uint8_t x, uint8_t y) {
-    return (y * WORLD_WIDTH) + x;
-}
-
-uint8_t world_chest_open(uint8_t x, uint8_t y) {
-    if (x >= WORLD_WIDTH || y >= WORLD_HEIGHT) return 0;
-    uint8_t room = world_room_index(x, y);
-    return CHEST_OPEN[room >> 3] & (1 << (room & 7));
-}
-
-static void world_set_chest_open(uint8_t x, uint8_t y) {
-    uint8_t room = world_room_index(x, y);
-    CHEST_OPEN[room >> 3] |= (1 << (room & 7));
-}
-
-zos_err_t world_init(gfx_context* ctx, Vector2_u8 start, room_loader_t loader) {
-    if (ctx == NULL || loader == NULL || start.x >= WORLD_WIDTH || start.y >= WORLD_HEIGHT) {
-        return ERR_INVALID_PARAMETER;
-    }
-
-    // load the starting room supplied by the game
-    world_ctx = ctx;
-    load_room = loader;
-    rect_set(room.rect, ROOM_OFFSET_X, ROOM_OFFSET_Y, ROOM_WIDTH, ROOM_HEIGHT);
-    zos_err_t err = tilemap_register(&room, room_tiles);
-    if (err != ERR_SUCCESS) return err;
-    world_position = start;
-    err = load_room(ctx, world_position.x, world_position.y, 1, 0);
-    if (err != ERR_SUCCESS) return err;
-    tilemap_scroll_x(0, SCREEN_WIDTH);
-    return ERR_SUCCESS;
-}
-
-void world_open_chest(void) {
-    world_set_chest_open(world_position.x, world_position.y);
-    ROOM_HAS_UNOPENED_CHEST = 0;
-}
-
-/** SCREEN FUNCTIONS */
-
-void screen_slide(Point tilemap, const Edge edge, const Point point, const transition_callback_t callback) {
+static void screen_slide(Point tilemap, const Edge edge, const Point point, const transition_callback_t callback) {
     uint8_t frames = 0;
 
     Direction world_direction = {
@@ -173,16 +119,16 @@ zos_err_t screen_load(const Vector2_u8 world, const Edge edge, const Point point
     zos_err_t err;
     switch (edge) {
         case EdgeLeft:
-            err = load_room(world_ctx, world.x, world.y, 0, 0);
+            err = world_load_room(world_ctx, world.x, world.y, 0, 0);
             if (err != ERR_SUCCESS) return err;
             break;
         case EdgeRight:
-            err = load_room(world_ctx, world.x, world.y, 2, 0);
+            err = world_load_room(world_ctx, world.x, world.y, 2, 0);
             if (err != ERR_SUCCESS) return err;
             break;
         case EdgeTop:
             // load the old map beneath
-            err = load_room(world_ctx, old_world.x, old_world.y, 1, 1);
+            err = world_load_room(world_ctx, old_world.x, old_world.y, 1, 1);
             if (err != ERR_SUCCESS) return err;
             // jump to old map
             gfx_wait_vblank(world_ctx);
@@ -190,13 +136,13 @@ zos_err_t screen_load(const Vector2_u8 world, const Edge edge, const Point point
             gfx_wait_end_vblank(world_ctx);
 
             // load the new map above
-            err = load_room(world_ctx, world.x, world.y, 1, 0);
+            err = world_load_room(world_ctx, world.x, world.y, 1, 0);
             if (err != ERR_SUCCESS) return err;
 
             tilemap.y = SCREEN_HEIGHT;
             break;
         case EdgeBottom:
-            err = load_room(world_ctx, world.x, world.y, 1, 1);
+            err = world_load_room(world_ctx, world.x, world.y, 1, 1);
             if (err != ERR_SUCCESS) return err;
             break;
     }
@@ -204,7 +150,7 @@ zos_err_t screen_load(const Vector2_u8 world, const Edge edge, const Point point
     screen_slide(tilemap, edge, point, callback);
 
     // load the current screen into 1,0 and jump to it
-    err = load_room(world_ctx, world.x, world.y, 1, 0);
+    err = world_load_room(world_ctx, world.x, world.y, 1, 0);
     if (err != ERR_SUCCESS) return err;
     gfx_wait_vblank(world_ctx);
     tilemap_scroll(0, SCREEN_WIDTH, 0);

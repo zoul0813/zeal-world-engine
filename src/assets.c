@@ -3,7 +3,8 @@
 
 #include "assets.h"
 #include "tile.h"
-#include "engine/world.h"
+#include "world/world.h"
+#include "chests.h"
 
 static zar_file_t zar_file;
 static zar_file_entry_t entry;
