@@ -1,7 +1,5 @@
 #include "tile.h"
 
-#include "assets.h"
-
 #define TILE_TYPE_COUNT 64
 
 static const TileType TILE_TYPES[TILE_TYPE_COUNT] = {

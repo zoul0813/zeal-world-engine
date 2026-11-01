@@ -19,6 +19,7 @@ BIN=world.bin
 # Specify the files in the src directory to compile and the name of the final binary.
 # By default, all the C files inside `INPUT_DIR` are selected, the `INPUT_DIR` prefix must not be part of the files names.
 # SRCS=$(notdir $(wildcard $(INPUT_DIR)/*.c))
+SRCS=main.c player.c engine/assets.c engine/tile.c engine/ui_map.c engine/world.c
 
 # Specify the location of your asserts (aseprite, gif, zts, ztp, ztm, etc)
 # ASSETS_DIR=assets

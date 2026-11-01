@@ -3,7 +3,6 @@
 #include <zgdk/tilemap/scroll.h>
 
 #include "assets.h"
-#include "main.h"
 
 /**
  * It is assumed the viewport is always the screen 0,1 on the tilemap
@@ -17,6 +16,7 @@ Vector2_u8 world_position;
 uint8_t ROOM_HAS_UNOPENED_CHEST;
 TileType SCREEN[HEIGHT][WIDTH];
 static uint8_t CHEST_OPEN[WORLD_CHEST_STATE_SIZE];
+static gfx_context* world_ctx;
 
 /** WORLD FUNCTIONS */
 
@@ -34,10 +34,14 @@ static void world_set_chest_open(uint8_t x, uint8_t y) {
     CHEST_OPEN[room >> 3] |= (1 << (room & 7));
 }
 
-error world_init(gfx_context* ctx) {
-    // load the screen the player starts on
-    world_position.x = WORLD_START_X;
-    world_position.y = WORLD_START_Y;
+zos_err_t world_init(gfx_context* ctx, Vector2_u8 start) {
+    if (ctx == NULL || start.x >= WORLD_WIDTH || start.y >= WORLD_HEIGHT) {
+        return ERR_INVALID_PARAMETER;
+    }
+
+    // load the starting room supplied by the game
+    world_ctx = ctx;
+    world_position = start;
     zos_err_t err = load_tilemap(ctx, world_position.x, world_position.y, 1, 0);
     if (err != ERR_SUCCESS) return err;
     tilemap_scroll_x(0, SCREEN_WIDTH);
@@ -50,7 +54,7 @@ void world_set_tile(uint8_t x, uint8_t y, uint8_t tile) {
     if (y >= HEIGHT) return;
 
     // place tile on screen
-    gfx_tilemap_place(&vctx, tile, 0, x + WIDTH, y);
+    gfx_tilemap_place(world_ctx, tile, 0, x + WIDTH, y);
     SCREEN[y][x] = tile_get_type(tile);
     if (tile == TILE_ID_CHEST_OPEN) {
         world_set_chest_open(world_position.x, world_position.y);
@@ -78,12 +82,12 @@ void screen_slide(Point tilemap, const Edge edge, const Point point, const trans
         .y = 0,
     };
 
-    Direction player_direction = {
+    Direction subject_direction = {
         .x = 0,
         .y = 0,
     };
 
-    Point player_pos = {
+    Point subject_pos = {
         .x = point.x,
         .y = point.y,
     };
@@ -108,51 +112,51 @@ void screen_slide(Point tilemap, const Edge edge, const Point point, const trans
             break;
     }
 
-    // determine direction of player
+    // determine direction of the transition subject
     switch (edge) {
         case EdgeLeft:
-            player_direction.x = DIRECTION_LEFT * SLIDE_SPEED;
+            subject_direction.x = DIRECTION_LEFT * SLIDE_SPEED;
             break;
         case EdgeRight:
-            player_direction.x = DIRECTION_RIGHT * SLIDE_SPEED;
+            subject_direction.x = DIRECTION_RIGHT * SLIDE_SPEED;
             break;
         case EdgeTop:
-            player_direction.y = DIRECTION_UP * SLIDE_SPEED;
+            subject_direction.y = DIRECTION_UP * SLIDE_SPEED;
             break;
         case EdgeBottom:
-            player_direction.y = DIRECTION_DOWN * SLIDE_SPEED;
+            subject_direction.y = DIRECTION_DOWN * SLIDE_SPEED;
             break;
     }
 
-    // slide the player the few extra pixels
+    // slide the transition subject the few extra pixels
     for (uint8_t x = SPRITE_WIDTH / SLIDE_SPEED; x > 0; x--) {
-        player_pos.x += player_direction.x;
-        player_pos.y += player_direction.y;
-        callback(player_pos.x, player_pos.y);
+        subject_pos.x += subject_direction.x;
+        subject_pos.y += subject_direction.y;
+        callback(subject_pos.x, subject_pos.y);
 
-        gfx_wait_vblank(&vctx);
-        sprites_render(&vctx);
-        gfx_wait_end_vblank(&vctx);
+        gfx_wait_vblank(world_ctx);
+        sprites_render(world_ctx);
+        gfx_wait_end_vblank(world_ctx);
     }
 
-    // slide the player/room into view
+    // slide the subject/room into view
     for (uint8_t x = frames; x > 0; x--) {
         tilemap.x += world_direction.x;
         tilemap.y += world_direction.y;
 
-        player_pos.x += -player_direction.x;
-        player_pos.y += -player_direction.y;
-        callback(player_pos.x, player_pos.y);
+        subject_pos.x += -subject_direction.x;
+        subject_pos.y += -subject_direction.y;
+        callback(subject_pos.x, subject_pos.y);
 
-        gfx_wait_vblank(&vctx);
+        gfx_wait_vblank(world_ctx);
 
         tilemap_scroll(0, tilemap.x, tilemap.y);
-        sprites_render(&vctx);
+        sprites_render(world_ctx);
 
-        gfx_wait_end_vblank(&vctx);
+        gfx_wait_end_vblank(world_ctx);
     }
 
-    // make sure the player is positioned properly
+    // make sure the transition subject is positioned properly
     switch (edge) {
         case EdgeLeft:
             callback(SCREEN_WIDTH, point.y);
@@ -182,36 +186,36 @@ void screen_load(const Vector2_u8 world, const Edge edge, const Point point, tra
 
     switch (edge) {
         case EdgeLeft:
-            load_tilemap(&vctx, world.x, world.y, 0, 0);
+            load_tilemap(world_ctx, world.x, world.y, 0, 0);
             break;
         case EdgeRight:
-            load_tilemap(&vctx, world.x, world.y, 2, 0);
+            load_tilemap(world_ctx, world.x, world.y, 2, 0);
             break;
         case EdgeTop:
             // load the old map beneath
-            load_tilemap(&vctx, old_world.x, old_world.y, 1, 1);
+            load_tilemap(world_ctx, old_world.x, old_world.y, 1, 1);
             // jump to old map
-            gfx_wait_vblank(&vctx);
+            gfx_wait_vblank(world_ctx);
             tilemap_scroll(0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            gfx_wait_end_vblank(&vctx);
+            gfx_wait_end_vblank(world_ctx);
 
             // load the new map above
-            load_tilemap(&vctx, world.x, world.y, 1, 0);
+            load_tilemap(world_ctx, world.x, world.y, 1, 0);
 
             tilemap.y = SCREEN_HEIGHT;
             break;
         case EdgeBottom:
-            load_tilemap(&vctx, world.x, world.y, 1, 1);
+            load_tilemap(world_ctx, world.x, world.y, 1, 1);
             break;
     }
 
     screen_slide(tilemap, edge, point, callback);
 
     // load the current screen into 1,0 and jump to it
-    load_tilemap(&vctx, world.x, world.y, 1, 0);
-    gfx_wait_vblank(&vctx);
+    load_tilemap(world_ctx, world.x, world.y, 1, 0);
+    gfx_wait_vblank(world_ctx);
     tilemap_scroll(0, SCREEN_WIDTH, 0);
-    gfx_wait_end_vblank(&vctx);
+    gfx_wait_end_vblank(world_ctx);
 
     // update to the latest
     world_position.x = world.x;
@@ -231,7 +235,7 @@ TileType screen_get_tile(const uint8_t x, const uint8_t y) {
  * This will momentarily "pause" the game and transition
  * the mext screen into view, if applicable.
  *
- * @param edge The edge of the current screen the player is exiting from
+ * @param edge The edge of the current screen the subject is exiting from
  * @returns 1 if transition occurred, 0 is no transition occurred
  */
 uint8_t screen_transition(const Edge edge, const Point point, const transition_callback_t callback) {
@@ -248,7 +252,7 @@ uint8_t screen_transition(const Edge edge, const Point point, const transition_c
                 new_world.x--;
                 transition = 1;
             } else {
-                // don't let the player go off screen
+                // keep the transition subject on screen
                 callback(SPRITE_WIDTH, point.y);
             }
             break;
@@ -257,7 +261,7 @@ uint8_t screen_transition(const Edge edge, const Point point, const transition_c
                 new_world.x++;
                 transition = 1;
             } else {
-                // don't let the player go off screen
+                // keep the transition subject on screen
                 callback(SCREEN_WIDTH, point.y);
             }
             break;
@@ -266,7 +270,7 @@ uint8_t screen_transition(const Edge edge, const Point point, const transition_c
                 new_world.y--;
                 transition = 1;
             } else {
-                // don't let the player go off screen
+                // keep the transition subject on screen
                 callback(point.x, SPRITE_HEIGHT);
             }
             break;
@@ -275,7 +279,7 @@ uint8_t screen_transition(const Edge edge, const Point point, const transition_c
                 new_world.y++;
                 transition = 1;
             } else {
-                // don't let the player go off screen
+                // keep the transition subject on screen
                 callback(point.x, SCREEN_HEIGHT);
             }
             break;

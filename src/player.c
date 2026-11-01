@@ -6,7 +6,7 @@
 
 #include "main.h"
 #include "assets.h"
-#include "world.h"
+#include "engine/world.h"
 
 player_t player;
 

@@ -9,11 +9,13 @@
 
 #include "main.h"
 #include "assets.h"
-#include "world.h"
+#include "engine/assets.h"
+#include "engine/world.h"
 #include "player.h"
-#include "ui_map.h"
+#include "engine/ui_map.h"
 
 gfx_context vctx;
+gfx_sprite SPRITE_ARENA[MAX_SPRITES];
 char buffer[WIDTH];
 
 void format_u16_3(char* dest, uint16_t value) {
@@ -106,7 +108,8 @@ void init(void) {
     err = player_init();
     handle_error(err, "init player", 1);
 
-    err = world_init(&vctx);
+    Vector2_u8 start = { .x = WORLD_START_X, .y = WORLD_START_Y };
+    err = world_init(&vctx, start);
     handle_error(err, "initialize world", 1);
 
     err = ui_map_init(&vctx, world_position);

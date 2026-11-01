@@ -29,11 +29,11 @@ project(${target_name} C ASM)
 # -------------------------------
 add_executable(${target_name}
     src/main.c
-    src/assets.c
+    src/engine/assets.c
     src/player.c
-    src/tile.c
-    src/ui_map.c
-    src/world.c
+    src/engine/tile.c
+    src/engine/ui_map.c
+    src/engine/world.c
 )
 
 # # -------------------------------

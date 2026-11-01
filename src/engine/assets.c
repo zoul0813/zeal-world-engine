@@ -5,7 +5,6 @@
 #include "tile.h"
 #include "world.h"
 
-gfx_sprite SPRITE_ARENA[MAX_SPRITES];
 zar_file_t zar_file;
 zar_file_entry_t entry;
 uint8_t data[MAX_DATA_KB * 1024];

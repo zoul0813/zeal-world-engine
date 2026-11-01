@@ -2,7 +2,6 @@
 
 #include <string.h>
 
-#include "main.h"
 #include "world.h"
 
 #define UI_MAP_TILE_SIZE 16

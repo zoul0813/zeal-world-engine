@@ -1,6 +1,7 @@
 #include <zgdk.h>
+#include <zos_errors.h>
 
-#include "main.h"
+#include "screen.h"
 #include "tile.h"
 
 #ifndef WORLD_H
@@ -14,11 +15,6 @@
 #define ROOM_OFFSET_Y 0
 #define TILEMAP_OFFSET 0
 
-#define WORLD_START_X 2
-#define WORLD_START_Y 4
-#define WORLD_PLAYER_X (SCREEN_WIDTH / 2)
-#define WORLD_PLAYER_Y (SCREEN_HEIGHT / 4)
-
 typedef void (*transition_callback_t)(uint16_t x, uint16_t y);
 
 extern Vector2_u8 world_position;
@@ -26,7 +22,8 @@ extern uint8_t ROOM_HAS_UNOPENED_CHEST;
 
 extern TileType SCREEN[ROOM_HEIGHT][ROOM_WIDTH];
 
-error world_init(gfx_context* ctx);
+/* The caller owns ctx and keeps it alive while the world is in use. */
+zos_err_t world_init(gfx_context* ctx, Vector2_u8 start);
 uint8_t world_get_tile(const uint8_t world_x, const uint8_t world_y, const uint8_t tile);
 void world_set_tile(const uint8_t x, const uint8_t y, const uint8_t tile);
 

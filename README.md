@@ -15,6 +15,23 @@ Then open a terminal, go to the source directory and type the following commands
     $ zde make
 ```
 
+## Source layout
+
+* `src/engine/` contains the reusable world code: screen layout, room loading,
+  transitions, tile classification, persistent room contents, and the minimap.
+* `src/main.c`, `src/main.h`, `src/player.c`, `src/player.h`, and `src/assets.h`
+  implement the test game: input, player movement, sprite allocation, scoring,
+  and the starting room and player position.
+
+The game supplies its graphics context and starting room to `world_init()`.
+Transitions report positions through a callback without depending on the player
+module. Room content state (currently opened chests) belongs to the engine;
+deciding when to open a chest and awarding its score belongs to the game.
+
+The engine currently uses the bundled world's tile IDs and fixed screen/world
+dimensions, defined in its headers. This separation identifies the reusable code
+without introducing a configurable engine API yet.
+
 ## Resources
 
 * [Dungeon Tileset](https://opengameart.org/content/dungeon-tileset)
