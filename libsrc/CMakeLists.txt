@@ -1,6 +1,7 @@
 add_library(world_engine STATIC
     world/world.c
     world/transitions.c
+    world/slide.c
     minimap/state.c
     minimap/render.c
     minimap/minimap.c

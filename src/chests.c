@@ -1,5 +1,6 @@
 #include "chests.h"
 #include "world/world.h"
+#include "world_layout.h"
 
 #define WORLD_CHEST_STATE_SIZE ((WORLD_WIDTH * WORLD_HEIGHT) / 8)
 

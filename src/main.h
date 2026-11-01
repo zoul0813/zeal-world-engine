@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <zos_errors.h>
 #include <zvb_gfx.h>
-#include "screen.h"
+#include "world_layout.h"
 
 #ifndef MAIN_H
 #define MAIN_H

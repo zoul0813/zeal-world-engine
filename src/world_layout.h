@@ -1,7 +1,7 @@
-#ifndef WORLD_LAYOUT_H
-#define WORLD_LAYOUT_H
+#ifndef DEMO_WORLD_LAYOUT_H
+#define DEMO_WORLD_LAYOUT_H
 
-#include "../screen.h"
+#include "screen.h"
 
 #define WORLD_WIDTH 16
 #define WORLD_HEIGHT 8
