@@ -37,7 +37,7 @@ zos_err_t load_tileset(gfx_context* ctx, const char *path, gfx_tileset_options* 
     err = zar_file_read(&zar_file, &entry, data, &size);
     if(err != ERR_SUCCESS) return err | 0xC0;
 
-    err = gfx_tileset_load(ctx, data, size, options);
+    err = gfx_tileset_load_rle(ctx, data, size, options->from_byte, options->pal_offset, options->opacity);
     if(err != ERR_SUCCESS) return err | 0x80;
     return err;
 }

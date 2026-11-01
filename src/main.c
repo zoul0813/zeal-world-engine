@@ -90,7 +90,7 @@ void init(void) {
     handle_error(err, "create empty tile", 1);
 
     gfx_tileset_options options = {
-        .compression = TILESET_COMP_RLE,
+        .from_byte = 0,
     };
     err = load_tileset(&vctx, "spritesh.zts", &options);
     handle_error(err, "load tileset", 1);
@@ -131,7 +131,7 @@ void reset(void) {
 
 static uint16_t input1_prev = 0;
 uint8_t input(void) {
-    uint16_t input1 = input_get();
+    uint16_t input1 = input_read();
 
     if (input1 == input1_prev) return 0;
     input1_prev = input1;

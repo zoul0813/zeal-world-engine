@@ -60,6 +60,6 @@ gfx_error minimap_render(gfx_context* ctx, const minimap_render_config_t* config
         }
     }
     draw_room(position.x, position.y, config->colors.current, ctx->bpp);
-    gfx_tileset_options options = { .compression = TILESET_COMP_NONE, .from_byte = (uint16_t)config->first_tile * tile_bytes };
-    return gfx_tileset_load(ctx, minimap_tiles, tile_bytes * 2, &options);
+    return gfx_tileset_load_none(ctx, minimap_tiles, tile_bytes * 2,
+        (uint16_t)config->first_tile * tile_bytes, 0, 0);
 }

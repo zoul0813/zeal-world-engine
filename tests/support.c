@@ -22,9 +22,10 @@ void tilemap_scroll(uint8_t layer,uint16_t x,uint16_t y) {
 }
 gfx_error gfx_wait_vblank(gfx_context* ctx) { assert(ctx);test_wait_count++;return test_graphics_error; }
 gfx_error gfx_wait_end_vblank(gfx_context* ctx) { assert(ctx);return test_graphics_error; }
-gfx_error gfx_tileset_load(gfx_context* ctx,void* data,uint16_t size,const gfx_tileset_options* options) {
+gfx_error gfx_tileset_load_none(gfx_context* ctx,uint8_t* data,uint16_t size,uint16_t from,uint8_t pal_offset,uint8_t opacity) {
     assert(ctx && size<=sizeof(test_uploaded));
-    memcpy(test_uploaded,data,size);test_uploaded_size=size;test_uploaded_from=options->from_byte;test_upload_count++;
+    assert(pal_offset == 0 && opacity == 0);
+    memcpy(test_uploaded,data,size);test_uploaded_size=size;test_uploaded_from=from;test_upload_count++;
     return test_graphics_error;
 }
 gfx_error gfx_tilemap_place(gfx_context* ctx,uint8_t tile,uint8_t layer,uint8_t x,uint8_t y) {
