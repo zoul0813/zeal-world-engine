@@ -68,7 +68,8 @@ void init(void) {
     err = load_asset_file("world.zar");
     handle_error(err, "load zar", 1);
 
-    sprites_register_arena(SPRITE_ARENA, MAX_SPRITES);
+    err = sprites_register_arena(SPRITE_ARENA, MAX_SPRITES);
+    handle_error(err, "register sprite arena", 1);
 
     ascii_map(' ', 1, 90);
     ascii_map('A', 16, 64);
@@ -100,7 +101,7 @@ void init(void) {
     tilemap_fill(&vctx, LAYER0, EMPTY_TILE, 0, 0, 80, 40);
     tilemap_fill(&vctx, LAYER1, EMPTY_TILE, 0, 0, 80, 40);
 
-    err = gfx_sprite_render_array(&vctx, 0, SPRITE_ARENA, MAX_SPRITES);
+    err = sprites_clear(&vctx);
     handle_error(err, "clear sprites", 1);
 
     err = player_init();

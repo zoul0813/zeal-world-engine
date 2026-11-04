@@ -82,6 +82,7 @@ error player_init(void) {
         .options = SPRITE_OPTION_32PX,
     };
     player.sprite = sprites_register(sprite);
+    if (player.sprite == NULL) return ERR_NO_MORE_MEMORY;
 
     return GFX_SUCCESS;
 }

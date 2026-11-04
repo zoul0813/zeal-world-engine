@@ -6,7 +6,11 @@ test_dir=$(mktemp -d "${TMPDIR:-/tmp}/world-tests.XXXXXX")
 trap 'rm -rf "$test_dir"' EXIT HUP INT TERM
 set --
 if [ -n "${ZGDK_PATH:-}" ]; then
-    set -- -DTEST_USE_REAL_ZGDK "$ZGDK_PATH/src/tilemap.c"
+    set -- -DTEST_USE_REAL_ZGDK \
+        "$ZGDK_PATH/src/tilemap/register.c" \
+        "$ZGDK_PATH/src/tilemap/get.c" \
+        "$ZGDK_PATH/src/tilemap/get_xy.c" \
+        "$ZGDK_PATH/src/tilemap/set_xy.c"
 fi
 for suite in world minimap; do
     "${CC:-cc}" -std=c11 -g -Wall -Wextra -Werror -fsanitize=address,undefined \
