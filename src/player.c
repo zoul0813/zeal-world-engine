@@ -7,7 +7,7 @@
 #include "main.h"
 #include "assets.h"
 #include "tile.h"
-#include "world/world.h"
+#include "zgdk/rooms.h"
 
 player_t player;
 

@@ -3,7 +3,7 @@
 
 #include "assets.h"
 #include "tile.h"
-#include "world/world.h"
+#include "zgdk/rooms.h"
 #include "world_layout.h"
 #include "chests.h"
 
@@ -82,7 +82,7 @@ void room_set_tile(gfx_context* ctx, uint8_t x, uint8_t y, uint8_t tile) {
     if (x >= ROOM_WIDTH || y >= ROOM_HEIGHT) return;
 
     Vector2_u8 origin;
-    world_get_origin(&origin);
+    rooms_get_origin(&origin);
     gfx_tilemap_place(ctx, tile, LEVEL_LAYER, origin.x + ROOM_OFFSET_X + x, origin.y + ROOM_OFFSET_Y + y);
     tilemap_set_xy(x, y, tile_get_type(tile));
     if (tile == TILE_ID_CHEST_OPEN) world_open_chest();

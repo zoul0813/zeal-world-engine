@@ -1,5 +1,5 @@
 #include "chests.h"
-#include "world/world.h"
+#include "zgdk/rooms.h"
 #include "world_layout.h"
 
 #define WORLD_CHEST_STATE_SIZE ((WORLD_WIDTH * WORLD_HEIGHT) / 8)
@@ -23,7 +23,7 @@ static void world_set_chest_open(uint8_t x, uint8_t y) {
 }
 
 void world_open_chest(void) {
-    world_set_chest_open(world_position.x, world_position.y);
+    world_set_chest_open(rooms_position.x, rooms_position.y);
     ROOM_HAS_UNOPENED_CHEST = 0;
 }
 
